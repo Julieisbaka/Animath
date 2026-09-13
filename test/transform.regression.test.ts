@@ -8,4 +8,12 @@ describe('regression: scene transforms', () => {
     parent.add(child);
     expect(child.worldMatrix.transformPoint(Vector2.zero).toArray()).toEqual([110, 70]);
   });
+
+  it('rejects parent cycles', () => {
+    const parent = new Circle(1);
+    const child = new Circle(1);
+    parent.add(child);
+
+    expect(() => child.add(parent)).toThrow('ancestors');
+  });
 });

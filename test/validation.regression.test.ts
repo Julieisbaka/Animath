@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { Axes2D, Circle, plotFunction, Polyline, vectorField, Vector2 } from '../src';
+import { Axes2D, Circle, plotFunction, Polyline, Spring, Tween, vectorField, Vector2 } from '../src';
 
 describe('regression: validation and scene safety', () => {
   it('rejects invalid axes, samples, and vector-field spacing', () => {
     expect(() => new Axes2D({ xRange: [1, 1] })).toThrow(RangeError);
+    expect(() => new Axes2D({ width: Infinity })).toThrow(RangeError);
     expect(() => plotFunction(new Axes2D(), Math.sin, { samples: 0 })).toThrow(RangeError);
     expect(() => vectorField(new Axes2D(), () => Vector2.zero, 0)).toThrow(RangeError);
+    expect(() => new Tween({ duration: NaN })).toThrow(RangeError);
+    expect(() => new Spring({ duration: 1, damping: Infinity })).toThrow(RangeError);
   });
 
   it('does not duplicate children or allow self-parenting', () => {

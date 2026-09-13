@@ -4,28 +4,38 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Animath interactive example gallery" />
-    <title>Animath · Example gallery</title>
+    <title>Animath · Examples</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230b0b0c'/%3E%3Cpath d='M4 17 L10 10 L14 14 L20 6' stroke='%23c9973f' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
-    <link rel="stylesheet" href="/docs/styles.css" />
+    <link rel="stylesheet" href="../styles.css" />
   </head>
   <body class="demo-page">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="/"><span class="brand-mark"></span>Animath</a>
+        <a class="brand" href="../"><span class="brand-mark"></span>Animath</a>
         <nav class="top-nav" aria-label="Site">
-          <a href="/docs/">Docs</a>
-          <a href="/">Core demo</a>
-          <a href="/react.html">React demo</a>
-          <a href="/gallery.html" aria-current="page">Examples</a>
+          <a href="../">Docs</a>
+          <a href="./core.html">Core example</a>
+          <a href="./react.html">React example</a>
+          <a href="./" aria-current="page">Examples</a>
         </nav>
       </div>
     </header>
     <main id="main-content" class="wide">
       <span class="eyebrow">Interactive examples</span>
       <h1>See the pieces work together.</h1>
-      <p class="lead">A small gallery of composition patterns: springs, nested transforms, formula rendering, and a parametric curve. Each example uses the public core API.</p>
+      <p class="lead">Explore the core engine, React adapter, and composition patterns. Each example uses the public API.</p>
       <div class="example-grid">
+        <section class="card">
+          <h2>Core engine</h2>
+          <p class="muted">Scene graphs, timelines, transforms, and formula rendering in the framework-neutral core.</p>
+          <p><a class="button" href="./core.html">Open core example →</a></p>
+        </section>
+        <section class="card">
+          <h2>React adapter <span class="badge">React</span></h2>
+          <p class="muted">The same scene model with the lifecycle-aware <code>AnimathPlayer</code> component.</p>
+          <p><a class="button" href="./react.html">Open React example →</a></p>
+        </section>
         <section class="card">
           <h2>Spring orbit</h2>
           <p class="muted">A damped spring drives a satellite around a parent object.</p>
@@ -49,22 +59,18 @@
         </section>
         <section class="card">
           <h2>Parametric curve</h2>
-          <p class="muted">A sampled Lissajous curve rendered as a styled polyline.</p>
+          <p class="muted">A sampled Bézier curve rendered as a styled polyline.</p>
           <div class="demo-frame">
-            <svg id="curve-stage" viewBox="0 0 520 280" role="img" aria-label="Parametric Lissajous curve"></svg>
+            <svg id="curve-stage" viewBox="0 0 520 280" role="img" aria-label="Parametric curve example"></svg>
             <div class="controls">
               <label for="curve-progress">Progress</label>
               <input id="curve-progress" type="range" min="0" max="1" step="0.01" value="1" />
             </div>
           </div>
         </section>
-        <section class="card">
-          <h2>Learn the APIs</h2>
-          <p>Want to understand the implementation? Start with the <a href="/docs/getting-started.html">scene and timeline guide</a>, then explore the <a href="/docs/calculus.html">calculus lab</a> or <a href="/docs/api.html">typed API reference</a>.</p>
-        </section>
       </div>
     </main>
-    <footer class="footer"><a href="/docs/">Back to docs</a> · <a href="/">Core demo</a> · <a href="/react.html">React demo</a></footer>
-    <script type="module" src="/gallery.js"></script>
+    <footer class="footer"><a href="../">Back to docs</a> · <a href="./core.html">Core example</a> · <a href="./react.html">React example</a></footer>
+    <script type="module" src="./gallery.js"></script>
   </body>
 </html>

@@ -3,15 +3,17 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const docs = ['index.html', 'getting-started.html', 'calculus.html', 'react.html', 'api.html'];
+const examples = ['index.html', 'core.html', 'react.html', 'gallery.js'];
 
 describe('acceptance: documentation site', () => {
   it('contains all linked documentation pages', () => {
     for (const page of docs) expect(existsSync(resolve('docs', page))).toBe(true);
+    for (const example of examples) expect(existsSync(resolve('docs', 'examples', example))).toBe(true);
   });
 
   it('links the React and calculus experiences', () => {
     const index = readFileSync(resolve('docs/index.html'), 'utf8');
-    expect(index).toContain('./react.html');
+    expect(index).toContain('./examples/react.html');
     expect(index).toContain('./calculus.html');
   });
 

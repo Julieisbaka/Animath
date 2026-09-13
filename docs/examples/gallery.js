@@ -1,7 +1,9 @@
-import { Circle, CubicBezier, MathTex, Polyline, Spring, SvgRenderer, Timeline, Tween, Vector2 } from '../dist/index.js';
+import { Circle, CubicBezier, MathTex, Polyline, Spring, SvgRenderer, Timeline, Tween, Vector2 } from '../../dist/index.js';
 
 function rendererFor(id, width = 520, height = 280) {
-  const renderer = new SvgRenderer(document.querySelector(id));
+  const element = document.querySelector(id);
+  if (!(element instanceof SVGSVGElement)) throw new Error(`Missing SVG example stage: ${id}`);
+  const renderer = new SvgRenderer(element);
   renderer.resize(width, height);
   return renderer;
 }
@@ -28,22 +30,30 @@ const curveRenderer = rendererFor('#curve-stage');
 const curve = new CubicBezier(new Vector2(40, 140), new Vector2(120, 10), new Vector2(390, 270), new Vector2(480, 140));
 const curvePoints = curve.sample(180);
 const curveObject = new Polyline(curvePoints).setStyle({ fill: 'none', stroke: '#9c7bff', strokeWidth: 4 });
-function drawCurve(progress) { curveObject.setPoints(curvePoints.slice(0, Math.max(2, Math.floor(curvePoints.length * progress)))); curveRenderer.beginFrame(); curveRenderer.renderMobject(curveObject); curveRenderer.endFrame(); }
+function drawCurve(progress) {
+  curveObject.setPoints(curvePoints.slice(0, Math.max(2, Math.floor(curvePoints.length * progress))));
+  curveRenderer.beginFrame();
+  curveRenderer.renderMobject(curveObject);
+  curveRenderer.endFrame();
+}
 
-document.querySelector('#spring-play').addEventListener('click', () => springTimeline.restart());
-document.querySelector('#spring-reset').addEventListener('click', () => springTimeline.seek(0));
-document.querySelector('#formula-play').addEventListener('click', () => {
+document.querySelector('#spring-play')?.addEventListener('click', () => springTimeline.restart());
+document.querySelector('#spring-reset')?.addEventListener('click', () => springTimeline.seek(0));
+document.querySelector('#formula-play')?.addEventListener('click', () => {
   formulaTimeline.restart();
   drawFormula();
 });
-document.querySelector('#curve-progress').addEventListener('input', (event) => drawCurve(Number(event.target.value)));
+document.querySelector('#curve-progress')?.addEventListener('input', (event) => drawCurve(Number(event.target.value)));
 
 let previous = performance.now();
 function frame(now) {
-  const delta = (now - previous) / 1000; previous = now;
+  const delta = (now - previous) / 1000;
+  previous = now;
   if (springTimeline.status === 'playing') {
     springTimeline.tick(delta);
-    springRenderer.beginFrame(); springRenderer.renderMobject(springRoot); springRenderer.endFrame();
+    springRenderer.beginFrame();
+    springRenderer.renderMobject(springRoot);
+    springRenderer.endFrame();
   }
   if (formulaTimeline.status === 'playing') {
     formulaTimeline.tick(delta);
@@ -51,6 +61,9 @@ function frame(now) {
   }
   requestAnimationFrame(frame);
 }
-springRenderer.beginFrame(); springRenderer.renderMobject(springRoot); springRenderer.endFrame();
+springRenderer.beginFrame();
+springRenderer.renderMobject(springRoot);
+springRenderer.endFrame();
 drawFormula();
-drawCurve(1); requestAnimationFrame(frame);
+drawCurve(1);
+requestAnimationFrame(frame);

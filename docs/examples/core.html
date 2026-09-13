@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Animath core engine demo: SVG rendering, timelines, and KaTeX formulas" />
+    <title>Animath · Core example</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230b0b0c'/%3E%3Cpath d='M4 17 L10 10 L14 14 L20 6' stroke='%23c9973f' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/node_modules/katex/dist/katex.min.css" />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body class="demo-page">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../"><span class="brand-mark"></span>Animath</a>
+        <nav class="top-nav" aria-label="Site">
+          <a href="../">Docs</a>
+          <a href="./core.html" aria-current="page">Core example</a>
+          <a href="./react.html">React example</a>
+          <a href="./">Examples</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main-content">
+      <span class="eyebrow">Core example</span>
+      <h1>Scene graph, timeline, and formulas.</h1>
+      <p class="lead">SVG rendering, hierarchical transforms, easing, and a seekable timeline in one small scene.</p>
+      <div class="demo-frame">
+        <svg id="stage" viewBox="0 0 900 520" role="img" aria-label="Animated circles and a rendered formula"></svg>
+        <div class="controls">
+          <button id="play" type="button">Play</button>
+          <button id="reset" type="button" class="secondary">Reset</button>
+          <label for="scrubber" class="muted">Timeline</label>
+          <input id="scrubber" type="range" min="0" max="6" step="0.01" value="0" />
+          <output id="time" for="scrubber">0.00s</output>
+        </div>
+      </div>
+      <p class="muted">Drag the timeline scrubber to seek. This example uses the public core API.</p>
+    </main>
+    <footer class="footer"><a href="../">Documentation</a> · <a href="./">More examples</a> · <a href="./react.html">React example</a></footer>
+    <script type="module" src="./core.js"></script>
+  </body>
+</html>

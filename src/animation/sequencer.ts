@@ -43,10 +43,12 @@ export class Spring implements Animation {
   private readonly onUpdate?: (progress: number) => void;
 
   constructor(options: SpringOptions) {
-    if (options.duration < 0) throw new RangeError('Spring duration cannot be negative');
+    if (!Number.isFinite(options.duration) || options.duration < 0) throw new RangeError('Spring duration must be finite and non-negative');
     this.duration = options.duration;
     this.frequency = options.frequency ?? 10;
     this.damping = options.damping ?? 6;
+    if (!Number.isFinite(this.frequency) || this.frequency < 0) throw new RangeError('Spring frequency must be finite and non-negative');
+    if (!Number.isFinite(this.damping) || this.damping < 0) throw new RangeError('Spring damping must be finite and non-negative');
     this.onUpdate = options.onUpdate;
   }
 

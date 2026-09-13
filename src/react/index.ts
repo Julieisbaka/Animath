@@ -9,25 +9,50 @@ export interface UseTimelineOptions { autoPlay?: boolean; }
 export function useTimeline(timeline: Timeline, options: UseTimelineOptions = {}) {
   const [currentTime, setCurrentTime] = useState(timeline.currentTime);
   const [, setVersion] = useState(0);
+  const frameRef = useRef<number | null>(null);
+  const previousRef = useRef<number | null>(null);
+
+  const tickFrame = useCallback((now: number) => {
+    frameRef.current = null;
+    const previous = previousRef.current ?? now;
+    previousRef.current = now;
+    const previousTime = timeline.currentTime;
+    const previousStatus = timeline.status;
+    timeline.tick((now - previous) / 1000);
+    if (timeline.currentTime !== previousTime) setCurrentTime(timeline.currentTime);
+    if (timeline.status !== previousStatus) setVersion((version) => version + 1);
+    if (timeline.status === 'playing') frameRef.current = requestAnimationFrame(tickFrame);
+  }, [timeline]);
+
+  const startLoop = useCallback(() => {
+    if (frameRef.current !== null || timeline.status !== 'playing') return;
+    previousRef.current = performance.now();
+    frameRef.current = requestAnimationFrame(tickFrame);
+  }, [tickFrame, timeline]);
 
   useEffect(() => {
     if (options.autoPlay) timeline.play();
-    let frame = 0;
-    let previous = performance.now();
-    const update = (now: number) => {
-      timeline.tick((now - previous) / 1000);
-      previous = now;
-      setCurrentTime((current) => current === timeline.currentTime ? current : timeline.currentTime);
-      setVersion((version) => timeline.status === 'playing' ? version + 1 : version);
-      frame = requestAnimationFrame(update);
+    startLoop();
+    return () => {
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
     };
-    frame = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(frame);
-  }, [options.autoPlay, timeline]);
+  }, [options.autoPlay, startLoop, timeline]);
 
-  const play = useCallback(() => timeline.play(), [timeline]);
-  const pause = useCallback(() => timeline.pause(), [timeline]);
-  const seek = useCallback((time: number) => { timeline.seek(time); setCurrentTime(timeline.currentTime); }, [timeline]);
+  const play = useCallback(() => {
+    timeline.play();
+    setVersion((version) => version + 1);
+    startLoop();
+  }, [startLoop, timeline]);
+  const pause = useCallback(() => {
+    timeline.pause();
+    setVersion((version) => version + 1);
+  }, [timeline]);
+  const seek = useCallback((time: number) => {
+    timeline.seek(time);
+    setCurrentTime(timeline.currentTime);
+    setVersion((version) => version + 1);
+  }, [timeline]);
   return { timeline, currentTime, duration: timeline.duration, status: timeline.status, play, pause, seek };
 }
 
@@ -96,20 +121,20 @@ export interface AnimathPlayerProps extends AnimathCanvasProps {
 
 export function AnimathPlayer({ timeline, children, ...canvasProps }: AnimathPlayerProps) {
   const fallbackTimeline = useMemo(() => new Timeline(), []);
-  const controller = useTimeline(timeline ?? fallbackTimeline);
-  const [playing, setPlaying] = useState(false);
+  const activeTimeline = timeline ?? fallbackTimeline;
+  const controller = useTimeline(activeTimeline);
+  const playing = controller.status === 'playing';
   const toggle = () => {
-    if (!controller) return;
     if (playing) controller.pause(); else controller.play();
-    setPlaying(!playing);
   };
   return createElement('div', { className: 'animath-player' },
-    createElement(AnimathCanvas, { ...canvasProps, timeline, animate: false }),
-    createElement('div', { className: 'animath-player-controls' },
+    createElement(AnimathCanvas, { ...canvasProps, timeline: activeTimeline, animate: false }),
+    createElement('div', { className: 'animath-player-controls', role: 'group', 'aria-label': 'Animation controls' },
       createElement('button', { type: 'button', onClick: toggle, 'aria-pressed': playing }, playing ? 'Pause' : 'Play'),
-      controller && createElement('input', {
+      createElement('input', {
         type: 'range', min: 0, max: controller.duration, step: 0.01, value: controller.currentTime,
         'aria-label': 'Timeline position',
+        'aria-valuetext': `${controller.currentTime.toFixed(2)} seconds`,
         onChange: (event: ChangeEvent<HTMLInputElement>) => controller.seek(Number(event.target.value))
       }),
       children

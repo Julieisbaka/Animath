@@ -22,8 +22,8 @@ export class Axes2D extends Mobject {
     this.yRange = options.yRange ?? [-3, 3];
     this.width = options.width ?? 800;
     this.height = options.height ?? 480;
-    if (!(this.xRange[1] > this.xRange[0]) || !(this.yRange[1] > this.yRange[0])) throw new RangeError('Axes ranges must be increasing');
-    if (!(this.width > 0) || !(this.height > 0)) throw new RangeError('Axes dimensions must be positive');
+    if (!this.xRange.every(Number.isFinite) || !this.yRange.every(Number.isFinite) || !(this.xRange[1] > this.xRange[0]) || !(this.yRange[1] > this.yRange[0])) throw new RangeError('Axes ranges must be finite and increasing');
+    if (!Number.isFinite(this.width) || !Number.isFinite(this.height) || !(this.width > 0) || !(this.height > 0)) throw new RangeError('Axes dimensions must be finite and positive');
     const axisStyle = { stroke: '#94a3b8', strokeWidth: 2, fill: 'none' };
     this.add(new Polyline([this.coordsToPoint(this.xRange[0], 0), this.coordsToPoint(this.xRange[1], 0)]).setStyle(axisStyle));
     this.add(new Polyline([this.coordsToPoint(0, this.yRange[0]), this.coordsToPoint(0, this.yRange[1])]).setStyle(axisStyle));

@@ -17,7 +17,7 @@ export class Tween implements Animation {
   private readonly onUpdate?: (progress: number) => void;
 
   constructor(options: TweenOptions) {
-    if (options.duration < 0) throw new RangeError('Tween duration cannot be negative');
+    if (!Number.isFinite(options.duration) || options.duration < 0) throw new RangeError('Tween duration must be finite and non-negative');
     this.duration = options.duration;
     this.easing = options.easing ?? linear;
     this.onUpdate = options.onUpdate;

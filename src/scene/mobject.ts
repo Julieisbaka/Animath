@@ -19,6 +19,9 @@ export abstract class Mobject {
   add(...children: Mobject[]): this {
     for (const child of children) {
       if (child === this) throw new Error('A Mobject cannot be added to itself');
+      for (let ancestor: Mobject | undefined = this; ancestor; ancestor = ancestor.parent) {
+        if (ancestor === child) throw new Error('A Mobject cannot be added to one of its ancestors');
+      }
       if (this.children.includes(child)) continue;
       if (child.parent && child.parent !== this) child.parent.remove(child);
       child.parent = this;
