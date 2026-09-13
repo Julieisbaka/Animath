@@ -68,7 +68,7 @@ npm run build
 npm run demo
 ```
 
-The demo server is available at `http://localhost:4173` and includes the core demo, React demo, documentation, calculus playground, and API reference.
+The demo server is available at `http://localhost:4173` and includes the core demo, React demo, documentation, calculus playground, and API reference. If that port is taken, the server automatically moves to the next free port. Use `npm run serve` to serve the existing build without rebuilding.
 
 ## Documentation
 
@@ -86,4 +86,4 @@ Run `npm audit` before publishing or deploying. Dependency advisories should be 
 
 ## License
 
-This project is currently unpublished and does not yet declare a license. Add a license before distributing it publicly.
+[MIT](LICENSE).
