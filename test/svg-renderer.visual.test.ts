@@ -15,4 +15,14 @@ describe('visual: SVG renderer structure', () => {
     expect(svg.querySelector('polyline')).not.toBeNull();
     expect(svg.getAttribute('viewBox')).toBe('0 0 100 100');
   });
+
+  it('preserves an explicit zero stroke width', () => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const renderer = new SvgRenderer(svg);
+    const circle = new Circle(10).setStyle({ strokeWidth: 0, fill: '#fff' });
+    renderer.beginFrame();
+    renderer.renderMobject(circle);
+    renderer.endFrame();
+    expect(svg.querySelector('circle')?.getAttribute('stroke-width')).toBe('0');
+  });
 });

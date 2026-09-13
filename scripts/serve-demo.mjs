@@ -16,6 +16,8 @@ const server = createServer((request, response) => {
   const requestPath = request.url?.split('?')[0] ?? '/';
   const relativePath = requestPath === '/' ? '/demo/index.html'
     : requestPath === '/react.html' ? '/demo/react.html'
+      : requestPath === '/gallery.html' ? '/demo/gallery.html'
+        : requestPath === '/gallery.js' ? '/demo/gallery.js'
       : requestPath;
   let filePath = normalize(join(root, relativePath));
   if (existsSync(filePath) && statSync(filePath).isDirectory()) filePath = join(filePath, 'index.html');

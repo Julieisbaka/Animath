@@ -63,9 +63,16 @@ export class Polyline extends Mobject {
 
   getBounds() {
     if (this.points.length === 0) return { min: Vector2.zero, max: Vector2.zero };
-    return {
-      min: new Vector2(Math.min(...this.points.map((point) => point.x)), Math.min(...this.points.map((point) => point.y))),
-      max: new Vector2(Math.max(...this.points.map((point) => point.x)), Math.max(...this.points.map((point) => point.y)))
-    };
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const point of this.points) {
+      if (point.x < minX) minX = point.x;
+      if (point.y < minY) minY = point.y;
+      if (point.x > maxX) maxX = point.x;
+      if (point.y > maxY) maxY = point.y;
+    }
+    return { min: new Vector2(minX, minY), max: new Vector2(maxX, maxY) };
   }
 }

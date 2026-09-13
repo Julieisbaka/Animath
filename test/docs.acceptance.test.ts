@@ -14,4 +14,11 @@ describe('acceptance: documentation site', () => {
     expect(index).toContain('./react.html');
     expect(index).toContain('./calculus.html');
   });
+
+  it('publishes typed API documentation', () => {
+    const api = readFileSync(resolve('docs/api.html'), 'utf8');
+    expect(api).toContain('coordsToPoint(x: number, y: number)');
+    expect(api).toContain('duration: number');
+    expect(api).toContain('animath/react');
+  });
 });

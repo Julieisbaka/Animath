@@ -1,6 +1,6 @@
 import { Axes2D, plotFunction, SvgRenderer } from '../dist/index.js';
 
-const svg = document.querySelector('#plot');
+const svg = document.querySelector('#plot-stage, #plot');
 const frequencyInput = document.querySelector('#frequency');
 const frequencyValue = document.querySelector('#frequency-value');
 const axes = new Axes2D({ xRange: [-Math.PI * 2, Math.PI * 2], yRange: [-1.5, 1.5], width: 800, height: 420, grid: true });

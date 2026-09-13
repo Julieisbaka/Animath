@@ -17,8 +17,8 @@ export function useTimeline(timeline: Timeline, options: UseTimelineOptions = {}
     const update = (now: number) => {
       timeline.tick((now - previous) / 1000);
       previous = now;
-      setCurrentTime(timeline.currentTime);
-      setVersion((version) => version + 1);
+      setCurrentTime((current) => current === timeline.currentTime ? current : timeline.currentTime);
+      setVersion((version) => timeline.status === 'playing' ? version + 1 : version);
       frame = requestAnimationFrame(update);
     };
     frame = requestAnimationFrame(update);
@@ -61,14 +61,23 @@ export function AnimathCanvas({ scene, timeline, width = 800, height = 480, rend
     activeRenderer.resize(width, height);
     let frame = 0;
     let previous = performance.now();
+    let lastTime = timeline?.currentTime ?? 0;
+    let dirty = true;
     const render = (now: number) => {
-      if (timeline && animate) {
-        timeline.tick((now - previous) / 1000);
+      if (timeline) {
+        if (animate && timeline.status === 'playing') timeline.tick((now - previous) / 1000);
         previous = now;
+        if (timeline.currentTime !== lastTime) {
+          lastTime = timeline.currentTime;
+          dirty = true;
+        }
       }
-      activeRenderer.beginFrame();
-      activeRenderer.renderMobject(scene);
-      activeRenderer.endFrame();
+      if (dirty) {
+        activeRenderer.beginFrame();
+        activeRenderer.renderMobject(scene);
+        activeRenderer.endFrame();
+        dirty = false;
+      }
       frame = requestAnimationFrame(render);
     };
     frame = requestAnimationFrame(render);
@@ -97,9 +106,10 @@ export function AnimathPlayer({ timeline, children, ...canvasProps }: AnimathPla
   return createElement('div', { className: 'animath-player' },
     createElement(AnimathCanvas, { ...canvasProps, timeline, animate: false }),
     createElement('div', { className: 'animath-player-controls' },
-      createElement('button', { type: 'button', onClick: toggle }, playing ? 'Pause' : 'Play'),
+      createElement('button', { type: 'button', onClick: toggle, 'aria-pressed': playing }, playing ? 'Pause' : 'Play'),
       controller && createElement('input', {
         type: 'range', min: 0, max: controller.duration, step: 0.01, value: controller.currentTime,
+        'aria-label': 'Timeline position',
         onChange: (event: ChangeEvent<HTMLInputElement>) => controller.seek(Number(event.target.value))
       }),
       children

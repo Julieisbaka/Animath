@@ -1,5 +1,21 @@
 <!doctype html>
-<html lang="en">
-  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Animath · Getting started</title><link rel="stylesheet" href="./styles.css" /></head>
-  <body><div class="layout"><aside><strong>Animath docs</strong><a href="./">Overview</a><a href="./getting-started.html">Getting started</a><a href="./calculus.html">Calculus</a><a href="./react.html">React</a><a href="./api.html">API reference</a></aside><main><h1>Getting started</h1><p class="muted">Install one package and use the framework-agnostic animation core anywhere JavaScript runs.</p><section class="card"><h2>Install</h2><p><code>npm install animath</code></p><p>Builds are available as ESM, CommonJS, and TypeScript declarations.</p></section><section class="card"><h2>Core import</h2><p><code>import { Circle, SvgRenderer, Timeline, Tween } from 'animath';</code></p><p>Create a scene, attach it to a renderer, and advance a timeline from your application loop.</p></section><section class="card"><h2>Optional React</h2><p><code>npm install react</code></p><p>Then import UI bindings from <code>animath/react</code>. React remains optional for core-only applications.</p></section></main></div></body>
-</html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Learn the Animath scene, timeline, and renderer model"><title>Animath · Get started</title><link rel="stylesheet" href="./styles.css"></head>
+<body><a class="skip-link" href="#main-content">Skip to content</a><header class="site-header"><div class="header-inner"><a class="brand" href="./"><span class="brand-mark">∑</span>Animath</a><nav class="top-nav" aria-label="Primary navigation"><a href="./">Docs</a><a href="./getting-started.html" aria-current="page">Get started</a><a href="./calculus.html">Calculus</a><a href="./react.html">React</a><a href="./api.html">API</a><a href="/gallery.html">Examples</a></nav></div></header><div class="layout"><aside class="sidebar"><span class="sidebar-title">On this page</span><nav aria-label="Page navigation"><a href="#install">Install</a><a href="#scene">Scene model</a><a href="#timeline">Animation loop</a><a href="#renderer">Renderers</a></nav></aside><main id="main-content"><span class="eyebrow">Getting started</span><h1>From scene graph to moving picture.</h1><p class="lead">Animath separates what your scene is from how it is rendered and when it changes. That makes the same scene usable in a demo, a lesson, or a React application.</p><section id="install" class="card"><h2>Install the package</h2><pre><code>npm install animath</code></pre><p>The root entrypoint is framework-neutral. The optional React adapter is available at <code>animath/react</code>; it is not required for SVG, Canvas, math, or timeline usage.</p></section><section id="scene" class="card"><h2>1. Create a scene</h2><pre><code>import { Circle, Vector2 } from 'animath';
+
+const ball = new Circle(24)
+  .moveTo(new Vector2(80, 100))
+  .setStyle({ fill: '#72a7ff', stroke: '#d9e8ff', strokeWidth: 2 });</code></pre><p><code>Mobject</code> instances hold transforms, styles, and children. Add a child to a parent to compose transforms hierarchically.</p></section><section id="timeline" class="card"><h2>2. Animate deterministically</h2><pre><code>const timeline = new Timeline().add(new Tween({
+  duration: 1.5,
+  easing: easeInOutQuad,
+  onUpdate: (progress) =&gt; {
+    ball.moveTo(new Vector2(80 + progress * 500, 100));
+  }
+}));
+
+timeline.play();
+// In your frame loop:
+timeline.tick(deltaSeconds);</code></pre><p>Use <code>seek(time)</code> for scrubbers and tests. Use <code>Sequence</code> and <code>Parallel</code> when several tracks need to be composed.</p></section><section id="renderer" class="card"><h2>3. Render a frame</h2><pre><code>const renderer = new SvgRenderer(svgElement);
+renderer.resize(800, 400);
+renderer.beginFrame();
+renderer.renderMobject(ball);
+renderer.endFrame();</code></pre><p>Swap <code>SvgRenderer</code> for <code>Canvas2DRenderer</code> when you prefer raster throughput over DOM inspectability.</p></section><p><a class="button" href="./calculus.html">Next: calculus lab →</a></p></main></div><footer class="footer"><a href="./">Back to docs</a> · <a href="/">Core demo</a> · <a href="/gallery.html">Examples</a></footer></body></html>

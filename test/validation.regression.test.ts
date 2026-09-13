@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Axes2D, Circle, plotFunction, vectorField, Vector2 } from '../src';
+import { Axes2D, Circle, plotFunction, Polyline, vectorField, Vector2 } from '../src';
 
 describe('regression: validation and scene safety', () => {
   it('rejects invalid axes, samples, and vector-field spacing', () => {
@@ -14,5 +14,14 @@ describe('regression: validation and scene safety', () => {
     parent.add(child).add(child);
     expect(parent.children).toHaveLength(1);
     expect(() => parent.add(parent)).toThrow();
+  });
+
+  it('computes bounds for dense polylines without overflowing the call stack', () => {
+    const points = Array.from({ length: 100_000 }, (_, index) => new Vector2(index, -index));
+    const bounds = new Polyline(points).getBounds();
+    expect(bounds.min.x).toBe(0);
+    expect(bounds.max.x).toBe(99_999);
+    expect(bounds.min.y).toBe(-99_999);
+    expect(bounds.max.y).toBeCloseTo(0);
   });
 });

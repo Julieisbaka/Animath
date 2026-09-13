@@ -7,5 +7,6 @@ export default defineConfig({
   noExternal: ['katex'],
   dts: true,
   clean: true,
-  sourcemap: true
+  sourcemap: true,
+  minify: true
 });

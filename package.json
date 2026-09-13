@@ -37,9 +37,13 @@
       "optional": true
     }
   },
+  "overrides": {
+    "esbuild": "^0.28.2"
+  },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "@types/react": "^19.3.0",
+    "esbuild": "^0.28.2",
     "happy-dom": "^20.14.5",
     "react": "^19.3.0",
     "tsup": "^8.3.5",

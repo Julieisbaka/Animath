@@ -39,7 +39,7 @@ export class SvgRenderer implements Renderer {
       }).join(' '));
       if (mobject.style.fill) path.setAttribute('fill', mobject.style.fill);
       if (mobject.style.stroke) path.setAttribute('stroke', mobject.style.stroke);
-      if (mobject.style.strokeWidth) path.setAttribute('stroke-width', String(mobject.style.strokeWidth));
+      if (mobject.style.strokeWidth !== undefined) path.setAttribute('stroke-width', String(mobject.style.strokeWidth));
       if (mobject.style.opacity !== undefined) path.setAttribute('opacity', String(mobject.style.opacity));
       this.group.appendChild(path);
     } else if (mobject instanceof Circle) {
@@ -51,7 +51,7 @@ export class SvgRenderer implements Renderer {
       circle.setAttribute('r', String(mobject.radius));
       if (mobject.style.fill) circle.setAttribute('fill', mobject.style.fill);
       if (mobject.style.stroke) circle.setAttribute('stroke', mobject.style.stroke);
-      if (mobject.style.strokeWidth) circle.setAttribute('stroke-width', String(mobject.style.strokeWidth));
+      if (mobject.style.strokeWidth !== undefined) circle.setAttribute('stroke-width', String(mobject.style.strokeWidth));
       if (mobject.style.opacity !== undefined) circle.setAttribute('opacity', String(mobject.style.opacity));
       this.group.appendChild(circle);
     }
