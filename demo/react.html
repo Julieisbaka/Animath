@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Animath React demo</title>
+    <link rel="stylesheet" href="../node_modules/katex/dist/katex.min.css" />
+    <style>
+      :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #111827; color: #e5e7eb; }
+      main { width: min(920px, calc(100vw - 32px)); }
+      .card { padding: 24px; border: 1px solid #374151; border-radius: 18px; background: #1f2937; box-shadow: 0 20px 60px #0005; }
+      p { color: #9ca3af; }
+      svg { width: 100%; height: auto; display: block; border-radius: 12px; background: #0f172a; }
+      .animath-player-controls { display: flex; gap: 12px; align-items: center; margin-top: 14px; }
+      .animath-player-controls input { flex: 1; accent-color: #a78bfa; }
+      button { border: 0; border-radius: 8px; padding: 9px 14px; color: white; background: #7c3aed; cursor: pointer; }
+      button:hover { background: #8b5cf6; }
+      nav { display: flex; gap: 16px; margin-bottom: 18px; }
+      a { color: #c4b5fd; }
+    </style>
+    <script type="importmap">
+      { "imports": {
+        "react": "https://esm.sh/react@19.3.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.3.0/client"
+      } }
+    </script>
+  </head>
+  <body>
+    <main>
+      <nav><a href="/">Core demo</a><a href="/docs/">Docs playground</a></nav>
+      <section class="card" id="app"></section>
+    </main>
+    <script type="module">
+      import React from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { Circle, MathTex, Timeline, Tween, Vector2, easeInOutQuad } from '../dist/index.js';
+      import { AnimathPlayer } from '../dist/react/index.js';
+
+      const scene = new Circle(0).setStyle({ opacity: 0 }).moveTo(new Vector2(450, 260));
+      const orb = new Circle(46).setStyle({ fill: '#a78bfa', stroke: '#ddd6fe', strokeWidth: 3 }).moveTo(new Vector2(-230, 40));
+      const satellite = new Circle(16).setStyle({ fill: '#fbbf24', stroke: '#fef3c7', strokeWidth: 2 }).moveTo(new Vector2(0, -100));
+      const formula = new MathTex('f(x) = \\sin(x)', { fontSize: 34 }).setStyle({ fill: '#f9fafb' }).moveTo(new Vector2(-110, -180));
+      scene.add(orb, satellite, formula);
+      const timeline = new Timeline()
+        .add(new Tween({ duration: 3, easing: easeInOutQuad, onUpdate: (progress) => {
+          orb.moveTo(new Vector2(-230 + progress * 460, 40));
+          satellite.moveTo(new Vector2(Math.cos(progress * Math.PI * 4) * 120, -100 + Math.sin(progress * Math.PI * 4) * 60));
+        }}))
+        .add(new Tween({ duration: 1, onUpdate: (progress) => formula.setStyle({ opacity: progress }) }));
+
+      function App() {
+        return React.createElement('div', null,
+          React.createElement('h1', null, 'Animath React adapter'),
+          React.createElement('p', null, 'AnimathPlayer owns the timeline while AnimathCanvas renders the scene.'),
+          React.createElement(AnimathPlayer, { scene, timeline, width: 860, height: 500, style: { width: '100%' } })
+        );
+      }
+      createRoot(document.querySelector('#app')).render(React.createElement(App));
+    </script>
+  </body>
+</html>
