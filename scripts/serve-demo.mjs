@@ -18,9 +18,14 @@ const server = createServer((request, response) => {
     : requestPath === '/react.html' ? '/demo/react.html'
       : requestPath;
   let filePath = normalize(join(root, relativePath));
-  if (existsSync(filePath) && statSync(filePath).isDirectory()) filePath = join(filePath, 'index.html');
   const safeRelativePath = relative(root, filePath);
-  if (safeRelativePath.startsWith(`..${sep}`) || safeRelativePath === '..' || !existsSync(filePath) || statSync(filePath).isDirectory()) {
+  if (safeRelativePath.startsWith(`..${sep}`) || safeRelativePath === '..') {
+    response.writeHead(404);
+    response.end('Not found');
+    return;
+  }
+  if (existsSync(filePath) && statSync(filePath).isDirectory()) filePath = join(filePath, 'index.html');
+  if (!existsSync(filePath) || statSync(filePath).isDirectory()) {
     response.writeHead(404);
     response.end('Not found');
     return;
