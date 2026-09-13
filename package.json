@@ -12,6 +12,7 @@
   "files": [
     "dist",
     "README.md",
+    "changelog.md",
     "LICENSE"
   ],
   "exports": {
@@ -33,7 +34,8 @@
     "serve": "node scripts/serve-demo.mjs",
     "demo": "npm run build && node scripts/serve-demo.mjs",
     "demo:react": "npm run demo",
-    "docs": "npm run demo"
+    "docs": "npm run demo",
+    "prepack": "npm run build"
   },
   "peerDependencies": {
     "react": ">=18"

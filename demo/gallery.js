@@ -18,6 +18,11 @@ const springTimeline = new Timeline().add(new Spring({ duration: 3, frequency: 8
 const formulaRenderer = rendererFor('#formula-stage');
 const formula = new MathTex('e^{i\\pi} + 1 = 0', { fontSize: 34 }).setStyle({ fill: '#9ac2ff', opacity: 0 }).moveTo(new Vector2(100, 130));
 const formulaTimeline = new Timeline().add(new Tween({ duration: 1.6, onUpdate: (progress) => formula.setStyle({ opacity: progress }) }));
+function drawFormula() {
+  formulaRenderer.beginFrame();
+  formulaRenderer.renderMobject(formula);
+  formulaRenderer.endFrame();
+}
 
 const curveRenderer = rendererFor('#curve-stage');
 const curve = new CubicBezier(new Vector2(40, 140), new Vector2(120, 10), new Vector2(390, 270), new Vector2(480, 140));
@@ -27,7 +32,10 @@ function drawCurve(progress) { curveObject.setPoints(curvePoints.slice(0, Math.m
 
 document.querySelector('#spring-play').addEventListener('click', () => springTimeline.restart());
 document.querySelector('#spring-reset').addEventListener('click', () => springTimeline.seek(0));
-document.querySelector('#formula-play').addEventListener('click', () => formulaTimeline.restart());
+document.querySelector('#formula-play').addEventListener('click', () => {
+  formulaTimeline.restart();
+  drawFormula();
+});
 document.querySelector('#curve-progress').addEventListener('input', (event) => drawCurve(Number(event.target.value)));
 
 let previous = performance.now();
@@ -39,10 +47,10 @@ function frame(now) {
   }
   if (formulaTimeline.status === 'playing') {
     formulaTimeline.tick(delta);
-    formulaRenderer.beginFrame(); formulaRenderer.renderMobject(formula); formulaRenderer.endFrame();
+    drawFormula();
   }
   requestAnimationFrame(frame);
 }
 springRenderer.beginFrame(); springRenderer.renderMobject(springRoot); springRenderer.endFrame();
-formulaRenderer.beginFrame(); formulaRenderer.renderMobject(formula); formulaRenderer.endFrame();
+drawFormula();
 drawCurve(1); requestAnimationFrame(frame);

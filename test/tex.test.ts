@@ -7,4 +7,8 @@ describe('Tex', () => {
     expect(formula.toSvg()).toContain('<svg');
     expect(new MathTex('x').expression).toBe('x');
   });
+
+  it('preserves superscript groups used by the Euler identity example', () => {
+    expect(new MathTex('e^{i\\pi} + 1 = 0').toSvg()).toContain('msupsub');
+  });
 });

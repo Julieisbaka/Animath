@@ -21,4 +21,14 @@ describe('acceptance: documentation site', () => {
     expect(api).toContain('duration: number');
     expect(api).toContain('animath/react');
   });
+
+  it('keeps interactive docs free of debug probes and marks code samples for highlighting', () => {
+    const calculus = readFileSync(resolve('docs/calculus.html'), 'utf8');
+    const playground = readFileSync(resolve('docs/playground.js'), 'utf8');
+    const gettingStarted = readFileSync(resolve('docs/getting-started.html'), 'utf8');
+    expect(calculus).toContain('class="language-typescript"');
+    expect(calculus).toContain('./highlight.js');
+    expect(playground).not.toContain('__pgRender');
+    expect(gettingStarted).toContain('class="language-bash"');
+  });
 });

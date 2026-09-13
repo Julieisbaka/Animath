@@ -62,7 +62,7 @@ h3 { margin: 22px 0 6px; font-size: 1rem; }
 .card p:last-child { margin-bottom: 0; }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 14px; }
-.feature { min-width: 0; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+.feature { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
 .feature h3 { margin-top: 0; }
 .feature code, .feature p { overflow-wrap: break-word; word-break: break-word; }
 
@@ -70,6 +70,13 @@ code, pre { font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberatio
 code { padding: .1em .35em; border-radius: 4px; background: var(--surface-raised); color: var(--accent); font-size: .88em; }
 pre { overflow-x: auto; margin: 16px 0; padding: 16px 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-raised); }
 pre code { padding: 0; background: none; color: var(--ink); font-size: .88rem; }
+.token.comment { color: #77766f; }
+.token.string { color: #d6a85e; }
+.token.keyword { color: #c9973f; }
+.token.number { color: #8fc7b0; }
+.token.function { color: #9ac2ff; }
+.token.operator { color: #d8b4fe; }
+.token.punctuation { color: #aaa9a2; }
 
 .demo-frame { overflow: hidden; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-raised); }
 svg, canvas { display: block; width: 100%; height: auto; background: var(--surface-raised); }
@@ -81,7 +88,7 @@ svg, canvas { display: block; width: 100%; height: auto; background: var(--surfa
 .button.secondary, button.secondary { background: transparent; color: var(--ink); border-color: var(--border); }
 .button.secondary:hover, button.secondary:hover { background: var(--surface); border-color: var(--border); color: var(--ink); }
 
-.badge { display: inline-block; border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px; color: var(--muted); font-size: .74rem; }
+.badge { display: inline-flex; align-items: center; min-height: 24px; margin-bottom: 14px; border: 1px solid var(--border); border-radius: 999px; padding: 3px 9px; color: var(--muted); font-size: .72rem; line-height: 1.2; }
 
 table { width: 100%; border-collapse: collapse; }
 th, td { border-bottom: 1px solid var(--border); padding: 10px 8px; text-align: left; vertical-align: top; font-size: .92rem; }

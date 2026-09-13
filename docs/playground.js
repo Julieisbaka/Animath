@@ -1,7 +1,7 @@
 import { Axes2D, plotFunction, SvgRenderer } from '../dist/index.js';
 
 function startCalculusPlayground() {
-  const svg = document.querySelector('#plot-stage, #plot');
+  const svg = document.querySelector('#plot-stage');
   const frequencyInput = document.querySelector('#frequency');
   const frequencyValue = document.querySelector('#frequency-value');
   if (!svg || !frequencyInput || !frequencyValue) return;
@@ -42,14 +42,3 @@ if (document.readyState === 'loading') {
 } else {
   startCalculusPlayground();
 }
-
-window.__pgRan = true; console.log('[pg] module evaluated');
-
-// debug: probe guard result
-(() => { window.__pgGuard = { svg: !!document.querySelector('#plot-stage, #plot'), freq: !!document.querySelector('#frequency'), val: !!document.querySelector('#frequency-value') }; })();
-
-// debug: instrument startCalculusPlayground
-(() => { const svg = document.querySelector('#plot-stage, #plot'); const f = document.querySelector('#frequency'); const v = document.querySelector('#frequency-value'); window.__pgEnter = { svg: !!svg, f: !!f, v: !!v }; try { const axes = new Axes2D({ xRange: [-1,1], yRange: [-1,1], width: 800, height: 420 }); const c = plotFunction(axes, Math.sin, { samples: 4 }); axes.add(c); const r = new SvgRenderer(svg); r.beginFrame(); r.renderMobject(axes); r.endFrame(); window.__pgRender = { children: svg.childElementCount }; } catch (e) { window.__pgErr = String(e) + ' | ' + e.stack; } })();
-
-// debug: watch children over time
-(() => { const svg = document.querySelector('#plot-stage'); window.__pgTimeline = []; const log = () => window.__pgTimeline.push(svg.childElementCount); setTimeout(log, 100); setTimeout(log, 500); setTimeout(log, 1500); })();
