@@ -68,7 +68,7 @@ npm run build
 npm run demo
 ```
 
-The demo server is available at `http://localhost:4173` and includes the core demo, React demo, documentation, calculus playground, and API reference. If that port is taken, the server automatically moves to the next free port. Use `npm run serve` to serve the existing build without rebuilding.
+The demo server serves the documentation at `http://localhost:4173/docs/` and the examples at `http://localhost:4173/docs/examples/`, including the core and React examples, calculus playground, and API reference. If that port is taken, the server automatically moves to the next free port. Use `npm run serve` to serve the existing build without rebuilding.
 
 ## Documentation
 

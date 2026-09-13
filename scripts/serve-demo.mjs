@@ -17,13 +17,6 @@ const mimeTypes = {
   '.svg': 'image/svg+xml'
 };
 
-const aliases = new Map([
-  ['/', '/docs/examples/core.html'],
-  ['/react.html', '/docs/examples/react.html'],
-  ['/gallery.html', '/docs/examples/'],
-  ['/gallery.js', '/docs/examples/gallery.js']
-]);
-
 const realRoot = realpathSync(root);
 
 const server = createServer((request, response) => {
@@ -41,13 +34,15 @@ const server = createServer((request, response) => {
       response.end('Bad request');
       return;
     }
-    const relativePath = aliases.get(requestPath) ?? requestPath;
+    const relativePath = requestPath;
     let filePath = normalize(join(root, relativePath));
     if (existsSync(filePath) && statSync(filePath).isDirectory()) filePath = join(filePath, 'index.html');
     const safeRelativePath = relative(root, filePath);
     const resolvedPath = existsSync(filePath) ? realpathSync(filePath) : filePath;
     const resolvedRelativePath = relative(realRoot, resolvedPath);
-    if (safeRelativePath.startsWith(`..${sep}`) || safeRelativePath === '..' || resolvedRelativePath.startsWith(`..${sep}`) || resolvedRelativePath === '..' || !existsSync(filePath) || statSync(filePath).isDirectory()) {
+    const publicPath = safeRelativePath.split(sep).join('/');
+    const isPublicPath = publicPath.startsWith('docs/') || publicPath.startsWith('dist/') || publicPath.startsWith('node_modules/katex/');
+    if (safeRelativePath.startsWith(`..${sep}`) || safeRelativePath === '..' || resolvedRelativePath.startsWith(`..${sep}`) || resolvedRelativePath === '..' || !isPublicPath || !existsSync(filePath) || statSync(filePath).isDirectory()) {
       response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       response.end('Not found');
       return;
@@ -76,10 +71,10 @@ function listen(port, attemptsLeft) {
   });
   server.listen(port, () => {
     console.log(`Animath dev server running at http://localhost:${port}`);
-    console.log('  /              core demo');
-    console.log('  /react.html    React demo');
-    console.log('  /gallery.html  example gallery');
-    console.log('  /docs/         documentation');
+    console.log('  /docs/                   documentation');
+    console.log('  /docs/examples/          example gallery');
+    console.log('  /docs/examples/core.html  core example');
+    console.log('  /docs/examples/react.html React example');
     console.log('Press Ctrl+C to stop.');
   });
 }

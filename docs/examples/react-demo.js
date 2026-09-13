@@ -19,7 +19,7 @@ const timeline = new Timeline()
   .add(new Tween({ duration: 1, onUpdate: (progress) => formula.setStyle({ opacity: progress }) }));
 
 function App() {
-  return React.createElement(AnimathPlayer, { scene, timeline, width: 860, height: 500, style: { width: '100%', height: 'auto' } });
+  return React.createElement(AnimathPlayer, { scene, timeline, width: 860, height: 500, ariaLabel: 'Animated React math scene', style: { width: '100%', height: 'auto' } });
 }
 
 createRoot(app).render(React.createElement(App));

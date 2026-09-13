@@ -72,11 +72,12 @@ export interface AnimathCanvasProps {
   height?: number;
   renderer?: 'svg' | 'canvas';
   animate?: boolean;
+  ariaLabel?: string;
   className?: string;
   style?: CSSProperties;
 }
 
-export function AnimathCanvas({ scene, timeline, width = 800, height = 480, renderer = 'svg', animate = true, className, style }: AnimathCanvasProps) {
+export function AnimathCanvas({ scene, timeline, width = 800, height = 480, renderer = 'svg', animate = true, ariaLabel, className, style }: AnimathCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -109,7 +110,8 @@ export function AnimathCanvas({ scene, timeline, width = 800, height = 480, rend
     return () => cancelAnimationFrame(frame);
   }, [animate, height, renderer, scene, timeline, width]);
 
-  const commonProps = { className, style, width, height };
+  const accessibilityProps = ariaLabel ? { role: 'img', 'aria-label': ariaLabel } : {};
+  const commonProps = { ...accessibilityProps, className, style, width, height };
   return renderer === 'canvas'
     ? createElement('canvas', { ...commonProps, ref: canvasRef })
     : createElement('svg', { ...commonProps, ref: svgRef, viewBox: `0 0 ${width} ${height}` });
