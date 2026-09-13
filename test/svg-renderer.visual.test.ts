@@ -25,4 +25,41 @@ describe('visual: SVG renderer structure', () => {
     renderer.endFrame();
     expect(svg.querySelector('circle')?.getAttribute('stroke-width')).toBe('0');
   });
+
+  it('reuses DOM nodes across frames and only updates changed mobjects', () => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const renderer = new SvgRenderer(svg);
+    const root = new Circle(0).setStyle({ opacity: 0 });
+    const moving = new Circle(5).moveTo(new Vector2(10, 10));
+    const still = new Circle(8).moveTo(new Vector2(50, 50));
+    root.add(moving, still);
+
+    const frame = () => { renderer.beginFrame(); renderer.renderMobject(root); renderer.endFrame(); };
+    frame();
+    const before = Array.from(svg.querySelectorAll('circle'));
+    expect(before).toHaveLength(2);
+
+    moving.moveTo(new Vector2(99, 99));
+    frame();
+    const after = Array.from(svg.querySelectorAll('circle'));
+    // Same DOM nodes are reused — no full-frame rebuild.
+    expect(after[0]).toBe(before[0]);
+    expect(after[1]).toBe(before[1]);
+    // Only the moved circle's transform changed.
+    expect(after[0]!.getAttribute('transform')).toContain('99');
+    expect(after[1]!.getAttribute('transform')).toContain('50');
+  });
+
+  it('prunes nodes whose mobjects were removed from the scene', () => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const renderer = new SvgRenderer(svg);
+    const root = new Circle(0).setStyle({ opacity: 0 });
+    const child = new Circle(5);
+    root.add(child);
+    renderer.beginFrame(); renderer.renderMobject(root); renderer.endFrame();
+    expect(svg.querySelectorAll('circle')).toHaveLength(1);
+    root.remove(child);
+    renderer.beginFrame(); renderer.renderMobject(root); renderer.endFrame();
+    expect(svg.querySelectorAll('circle')).toHaveLength(0);
+  });
 });

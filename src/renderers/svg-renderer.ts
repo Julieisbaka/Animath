@@ -71,6 +71,7 @@ export class SvgRenderer implements Renderer {
 
   private nodeKindOf(mobject: Mobject): string {
     if (mobject instanceof Tex) return 'tex';
+    if (mobject instanceof Circle && mobject.radius <= 0) return 'group';
     if (mobject instanceof Circle) return 'circle';
     if (mobject instanceof Polyline) return mobject.closed ? 'polygon' : 'polyline';
     return 'group';
