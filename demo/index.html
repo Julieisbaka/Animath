@@ -5,41 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Animath core engine demo: SVG rendering, timelines, and KaTeX formulas" />
     <title>Animath · Core demo</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230b0b0c'/%3E%3Cpath d='M4 17 L10 10 L14 14 L20 6' stroke='%23c9973f' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
     <link rel="stylesheet" href="/node_modules/katex/dist/katex.min.css" />
     <link rel="stylesheet" href="/docs/styles.css" />
   </head>
-  <body>
+  <body class="demo-page">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="/"><span class="brand-mark">∑</span>Animath</a>
-        <nav class="top-nav" aria-label="Primary navigation">
+        <a class="brand" href="/"><span class="brand-mark"></span>Animath</a>
+        <nav class="top-nav" aria-label="Site">
+          <a href="/docs/">Docs</a>
           <a href="/" aria-current="page">Core demo</a>
           <a href="/react.html">React demo</a>
           <a href="/gallery.html">Examples</a>
-          <a href="/docs/">Docs</a>
-          <a href="/docs/calculus.html">Calculus</a>
-          <a href="/docs/api.html">API</a>
         </nav>
       </div>
     </header>
-    <main id="main-content" style="width:min(920px,calc(100% - 40px));margin:48px auto 80px">
+    <main id="main-content">
       <span class="eyebrow">Core engine</span>
-      <h1 style="font-size:clamp(2rem,4vw,3rem)">Scene graph, timeline, and formulas.</h1>
+      <h1>Scene graph, timeline, and formulas.</h1>
       <p class="lead">SVG rendering, hierarchical transforms, easing, and a seekable timeline in one small scene.</p>
-      <section class="card" style="padding:0;overflow:hidden">
-        <div class="demo-frame" style="margin:0;border:0">
-          <svg id="stage" viewBox="0 0 900 520" role="img" aria-label="Animated circles and a rendered formula"></svg>
-          <div class="controls">
-            <button id="play" type="button">Play</button>
-            <button id="reset" type="button">Reset</button>
-            <label for="scrubber" class="muted">Timeline</label>
-            <input id="scrubber" type="range" min="0" max="6" step="0.01" value="0" />
-            <output id="time" for="scrubber">0.00s</output>
-          </div>
+      <div class="demo-frame">
+        <svg id="stage" viewBox="0 0 900 520" role="img" aria-label="Animated circles and a rendered formula"></svg>
+        <div class="controls">
+          <button id="play" type="button">Play</button>
+          <button id="reset" type="button" class="secondary">Reset</button>
+          <label for="scrubber" class="muted">Timeline</label>
+          <input id="scrubber" type="range" min="0" max="6" step="0.01" value="0" />
+          <output id="time" for="scrubber">0.00s</output>
         </div>
-      </section>
-      <p class="muted">Try dragging the timeline scrubber. The source is <code>demo/index.html</code>.</p>
+      </div>
+      <p class="muted">Drag the timeline scrubber to seek. The source is <code>demo/index.html</code>.</p>
     </main>
     <footer class="footer"><a href="/docs/">Documentation</a> · <a href="/gallery.html">More examples</a> · <a href="/react.html">React demo</a></footer>
     <script type="module">
@@ -54,10 +51,10 @@
       renderer.resize(900, 520);
 
       const scene = new Circle(0).setStyle({ opacity: 0 }).moveTo(new Vector2(450, 260));
-      const blue = new Circle(42).setStyle({ fill: '#38bdf8', stroke: '#bae6fd', strokeWidth: 3 }).moveTo(new Vector2(-260, 0));
-      const pink = new Circle(30).setStyle({ fill: '#f472b6', stroke: '#fbcfe8', strokeWidth: 3 }).moveTo(new Vector2(0, 0));
-      const gold = new Circle(22).setStyle({ fill: '#facc15', stroke: '#fef08a', strokeWidth: 3 }).moveTo(new Vector2(0, 0));
-      const formula = new MathTex('a^2 + b^2 = c^2', { fontSize: 32 }).setStyle({ fill: '#e2e8f0' }).moveTo(new Vector2(-145, -175));
+      const blue = new Circle(42).setStyle({ fill: '#c9973f', stroke: '#f0efe9', strokeWidth: 3 }).moveTo(new Vector2(-260, 0));
+      const pink = new Circle(30).setStyle({ fill: '#e8b874', stroke: '#f0efe9', strokeWidth: 3 }).moveTo(new Vector2(0, 0));
+      const gold = new Circle(22).setStyle({ fill: '#8f8f88', stroke: '#f0efe9', strokeWidth: 3 }).moveTo(new Vector2(0, 0));
+      const formula = new MathTex('a^2 + b^2 = c^2', { fontSize: 32 }).setStyle({ fill: '#f0efe9' }).moveTo(new Vector2(-145, -175));
       scene.add(blue, pink.add(gold), formula);
 
       const timeline = new Timeline()

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Animath React adapter demo using AnimathPlayer" />
     <title>Animath · React demo</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230b0b0c'/%3E%3Cpath d='M4 17 L10 10 L14 14 L20 6' stroke='%23c9973f' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
     <link rel="stylesheet" href="/node_modules/katex/dist/katex.min.css" />
     <link rel="stylesheet" href="/docs/styles.css" />
     <script type="importmap">
@@ -14,26 +15,24 @@
       } }
     </script>
   </head>
-  <body>
+  <body class="demo-page">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="/"><span class="brand-mark">∑</span>Animath</a>
-        <nav class="top-nav" aria-label="Primary navigation">
+        <a class="brand" href="/"><span class="brand-mark"></span>Animath</a>
+        <nav class="top-nav" aria-label="Site">
+          <a href="/docs/">Docs</a>
           <a href="/">Core demo</a>
           <a href="/react.html" aria-current="page">React demo</a>
           <a href="/gallery.html">Examples</a>
-          <a href="/docs/">Docs</a>
-          <a href="/docs/calculus.html">Calculus</a>
-          <a href="/docs/api.html">API</a>
         </nav>
       </div>
     </header>
-    <main id="main-content" style="width:min(920px,calc(100% - 40px));margin:48px auto 80px">
+    <main id="main-content">
       <span class="eyebrow">React adapter</span>
-      <h1 style="font-size:clamp(2rem,4vw,3rem)">Animath, driven by React.</h1>
+      <h1>Animath, driven by React.</h1>
       <p class="lead"><code>AnimathPlayer</code> owns the timeline while <code>AnimathCanvas</code> renders the scene — one state source, no double-ticking.</p>
-      <section class="card" style="padding:0;overflow:hidden" id="app"></section>
+      <div class="demo-frame" id="app"></div>
     </main>
     <footer class="footer"><a href="/docs/react.html">React documentation</a> · <a href="/docs/">All docs</a> · <a href="/gallery.html">Examples</a></footer>
     <script type="module">
@@ -43,9 +42,9 @@
       import { AnimathPlayer } from '../dist/react/index.js';
 
       const scene = new Circle(0).setStyle({ opacity: 0 }).moveTo(new Vector2(450, 260));
-      const orb = new Circle(46).setStyle({ fill: '#a78bfa', stroke: '#ddd6fe', strokeWidth: 3 }).moveTo(new Vector2(-230, 40));
-      const satellite = new Circle(16).setStyle({ fill: '#fbbf24', stroke: '#fef3c7', strokeWidth: 2 }).moveTo(new Vector2(0, -100));
-      const formula = new MathTex('f(x) = \\sin(x)', { fontSize: 34 }).setStyle({ fill: '#f9fafb' }).moveTo(new Vector2(-110, -180));
+      const orb = new Circle(46).setStyle({ fill: '#c9973f', stroke: '#f0efe9', strokeWidth: 3 }).moveTo(new Vector2(-230, 40));
+      const satellite = new Circle(16).setStyle({ fill: '#e8b874', stroke: '#f0efe9', strokeWidth: 2 }).moveTo(new Vector2(0, -100));
+      const formula = new MathTex('f(x) = \\sin(x)', { fontSize: 34 }).setStyle({ fill: '#f0efe9' }).moveTo(new Vector2(-110, -180));
       scene.add(orb, satellite, formula);
       const timeline = new Timeline()
         .add(new Tween({ duration: 3, easing: easeInOutQuad, onUpdate: (progress) => {
