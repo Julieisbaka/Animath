@@ -1,6 +1,6 @@
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { extname, join, normalize, relative, sep } from 'node:path';
+import { extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -17,9 +17,9 @@ const server = createServer((request, response) => {
   const relativePath = requestPath === '/' ? '/demo/index.html'
     : requestPath === '/react.html' ? '/demo/react.html'
       : requestPath;
-  let filePath = normalize(join(root, relativePath));
-  const safeRelativePath = relative(root, filePath);
-  if (safeRelativePath.startsWith(`..${sep}`) || safeRelativePath === '..') {
+  const safeRoot = resolve(root);
+  let filePath = resolve(root, `.${relativePath}`);
+  if (!(filePath === safeRoot || filePath.startsWith(`${safeRoot}${sep}`))) {
     response.writeHead(404);
     response.end('Not found');
     return;
