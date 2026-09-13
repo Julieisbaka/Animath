@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Axes2D, plotFunction, Vector2, vectorField } from '../../src';
+import { Axes2D, plotFunction, Vector2, vectorField } from '../src';
 
 describe('stress: dense plotting', () => {
   it('handles a high-resolution function plot', () => {

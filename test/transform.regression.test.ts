@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Circle, Vector2 } from '../../src';
+import { Circle, Vector2 } from '../src';
 
 describe('regression: scene transforms', () => {
   it('preserves parent transforms when rendering a child world matrix', () => {

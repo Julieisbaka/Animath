@@ -18,6 +18,8 @@ export abstract class Mobject {
 
   add(...children: Mobject[]): this {
     for (const child of children) {
+      if (child === this) throw new Error('A Mobject cannot be added to itself');
+      if (this.children.includes(child)) continue;
       if (child.parent && child.parent !== this) child.parent.remove(child);
       child.parent = this;
       this.children.push(child);

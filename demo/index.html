@@ -17,10 +17,13 @@
       button:hover { background: #3b82f6; }
       input { flex: 1; accent-color: #60a5fa; }
       code { color: #93c5fd; }
+      .site-nav { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+      .site-nav a { color: #93c5fd; text-decoration: none; }
     </style>
   </head>
   <body>
     <main>
+      <nav class="site-nav"><a href="/">Core demo</a><a href="/react.html">React demo</a><a href="/docs/">Docs</a><a href="/docs/calculus.html">Calculus</a><a href="/docs/api.html">API</a></nav>
       <h1>Animath core demo</h1>
       <p>SVG rendering, hierarchical transforms, easing, and a seekable timeline in one small scene.</p>
       <svg id="stage" viewBox="0 0 900 520" aria-label="Animated circles"></svg>

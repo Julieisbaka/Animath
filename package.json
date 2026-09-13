@@ -44,7 +44,8 @@
     "react": "^19.3.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vite": "^8.3.0",
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "katex": "^0.18.7"

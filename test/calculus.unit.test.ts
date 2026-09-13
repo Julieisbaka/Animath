@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Axes2D } from '../../src';
+import { Axes2D } from '../src';
 
 describe('unit: Axes2D', () => {
   it('maps the center of a symmetric domain to the canvas center', () => {

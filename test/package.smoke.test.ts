@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import * as animath from '../../src';
-import * as reactAdapter from '../../src/react';
+import * as animath from '../src';
+import * as reactAdapter from '../src/react';
 
 describe('smoke: public entrypoints', () => {
   it('loads the core and React adapter entrypoints', () => {

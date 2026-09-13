@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest';
-import { Circle, Polyline, SvgRenderer, Vector2 } from '../../src';
+import { Circle, Polyline, SvgRenderer, Vector2 } from '../src';
 
 describe('visual: SVG renderer structure', () => {
   it('renders circles and polylines into SVG elements', () => {

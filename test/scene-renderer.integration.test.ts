@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest';
-import { Circle, SvgRenderer, Timeline, Tween, Vector2 } from '../../src';
+import { Circle, SvgRenderer, Timeline, Tween, Vector2 } from '../src';
 
 describe('integration: timeline and renderer', () => {
   it('animates a scene and renders its updated position', () => {

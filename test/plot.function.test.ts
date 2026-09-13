@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Axes2D, plotFunction, plotParametric, plotPolar } from '../../src';
+import { Axes2D, plotFunction, plotParametric, plotPolar } from '../src';
 
 describe('function: plot generators', () => {
   const axes = new Axes2D({ xRange: [-2, 2], yRange: [-2, 2] });

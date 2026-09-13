@@ -1,6 +1,6 @@
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { extname, join, normalize } from 'node:path';
+import { extname, join, normalize, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -19,12 +19,18 @@ const server = createServer((request, response) => {
       : requestPath;
   let filePath = normalize(join(root, relativePath));
   if (existsSync(filePath) && statSync(filePath).isDirectory()) filePath = join(filePath, 'index.html');
-  if (!filePath.startsWith(root) || !existsSync(filePath) || statSync(filePath).isDirectory()) {
+  const safeRelativePath = relative(root, filePath);
+  if (safeRelativePath.startsWith(`..${sep}`) || safeRelativePath === '..' || !existsSync(filePath) || statSync(filePath).isDirectory()) {
     response.writeHead(404);
     response.end('Not found');
     return;
   }
-  response.writeHead(200, { 'Content-Type': mimeTypes[extname(filePath)] ?? 'application/octet-stream' });
+  response.writeHead(200, {
+    'Content-Type': mimeTypes[extname(filePath)] ?? 'application/octet-stream',
+    'Content-Security-Policy': "default-src 'self' https://esm.sh; script-src 'self' https://esm.sh 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'",
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'no-referrer'
+  });
   createReadStream(filePath).pipe(response);
 });
 

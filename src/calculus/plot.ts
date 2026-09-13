@@ -4,8 +4,14 @@ import { Axes2D } from './axes';
 
 export interface PlotOptions { samples?: number; style?: { stroke?: string; strokeWidth?: number; fill?: string; opacity?: number }; }
 
+function sampleCount(value: number | undefined, fallback: number): number {
+  const samples = value ?? fallback;
+  if (!Number.isInteger(samples) || samples < 1) throw new RangeError('samples must be a positive integer');
+  return samples;
+}
+
 export function plotFunction(axes: Axes2D, fn: (x: number) => number, options: PlotOptions = {}): Polyline {
-  const samples = options.samples ?? 256;
+  const samples = sampleCount(options.samples, 256);
   const points = Array.from({ length: samples + 1 }, (_, index) => {
     const x = axes.xRange[0] + (index / samples) * (axes.xRange[1] - axes.xRange[0]);
     return axes.coordsToPoint(x, fn(x));
@@ -14,7 +20,7 @@ export function plotFunction(axes: Axes2D, fn: (x: number) => number, options: P
 }
 
 export function plotParametric(axes: Axes2D, xFn: (t: number) => number, yFn: (t: number) => number, range: [number, number] = [0, 1], options: PlotOptions = {}): Polyline {
-  const samples = options.samples ?? 256;
+  const samples = sampleCount(options.samples, 256);
   const points = Array.from({ length: samples + 1 }, (_, index) => {
     const t = range[0] + (index / samples) * (range[1] - range[0]);
     return axes.coordsToPoint(xFn(t), yFn(t));
@@ -37,7 +43,7 @@ export class TangentLine extends Polyline {
 
 export class AreaUnderCurve extends Polyline {
   constructor(axes: Axes2D, fn: (x: number) => number, range: [number, number], options: PlotOptions = {}) {
-    const samples = options.samples ?? 128;
+    const samples = sampleCount(options.samples, 128);
     const points = [axes.coordsToPoint(range[0], 0)];
     for (let index = 0; index <= samples; index++) {
       const x = range[0] + (index / samples) * (range[1] - range[0]);
@@ -67,6 +73,7 @@ export class MobjectGroup extends Mobject {
 }
 
 export function vectorField(axes: Axes2D, field: (x: number, y: number) => Vector2, spacing = 1, options: PlotOptions = {}): Mobject {
+  if (!Number.isFinite(spacing) || spacing <= 0) throw new RangeError('spacing must be positive');
   const group = new MobjectGroup();
   for (let x = Math.ceil(axes.xRange[0] / spacing) * spacing; x <= axes.xRange[1]; x += spacing) {
     for (let y = Math.ceil(axes.yRange[0] / spacing) * spacing; y <= axes.yRange[1]; y += spacing) {
