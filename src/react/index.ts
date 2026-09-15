@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, createElement, type CSSProperties, type ReactNode, type ChangeEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, createElement, type CSSProperties, type ReactNode, type ChangeEvent, type Dispatch, type ReactElement, type SetStateAction } from 'react';
 import { Canvas2DRenderer } from '../renderers/canvas-renderer';
 import { SvgRenderer } from '../renderers/svg-renderer';
 import { Mobject } from '../scene/mobject';
@@ -6,7 +6,17 @@ import { Timeline } from '../animation/timeline';
 
 export interface UseTimelineOptions { autoPlay?: boolean; }
 
-export function useTimeline(timeline: Timeline, options: UseTimelineOptions = {}) {
+export interface TimelineController {
+  timeline: Timeline;
+  currentTime: number;
+  duration: number;
+  status: Timeline['status'];
+  play: () => void;
+  pause: () => void;
+  seek: (time: number) => void;
+}
+
+export function useTimeline(timeline: Timeline, options: UseTimelineOptions = {}): TimelineController {
   const [currentTime, setCurrentTime] = useState(timeline.currentTime);
   const [, setVersion] = useState(0);
   const frameRef = useRef<number | null>(null);
@@ -56,7 +66,7 @@ export function useTimeline(timeline: Timeline, options: UseTimelineOptions = {}
   return { timeline, currentTime, duration: timeline.duration, status: timeline.status, play, pause, seek };
 }
 
-export function useMathSignal<T>(initialValue: T) {
+export function useMathSignal<T>(initialValue: T): readonly [T, Dispatch<SetStateAction<T>>] {
   const [value, setValue] = useState(initialValue);
   return [value, setValue] as const;
 }
@@ -77,7 +87,7 @@ export interface AnimathCanvasProps {
   style?: CSSProperties;
 }
 
-export function AnimathCanvas({ scene, timeline, width = 800, height = 480, renderer = 'svg', animate = true, ariaLabel, className, style }: AnimathCanvasProps) {
+export function AnimathCanvas({ scene, timeline, width = 800, height = 480, renderer = 'svg', animate = true, ariaLabel, className, style }: AnimathCanvasProps): ReactElement {
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -121,7 +131,7 @@ export interface AnimathPlayerProps extends AnimathCanvasProps {
   children?: ReactNode;
 }
 
-export function AnimathPlayer({ timeline, children, ...canvasProps }: AnimathPlayerProps) {
+export function AnimathPlayer({ timeline, children, ...canvasProps }: AnimathPlayerProps): ReactElement {
   const fallbackTimeline = useMemo(() => new Timeline(), []);
   const activeTimeline = timeline ?? fallbackTimeline;
   const controller = useTimeline(activeTimeline);

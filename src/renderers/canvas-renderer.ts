@@ -1,7 +1,7 @@
 import { Circle, Mobject, Polyline } from '../scene/mobject';
 import { Renderer } from './renderer';
 
-export class Canvas2DRenderer implements Renderer {
+export class Canvas2DRenderer implements Renderer<HTMLCanvasElement> {
   readonly element: HTMLCanvasElement;
   private readonly context: CanvasRenderingContext2D;
 

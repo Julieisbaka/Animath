@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.mjs': 'application/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.map': 'application/json; charset=utf-8',
@@ -36,7 +36,14 @@ const server = createServer((request, response) => {
     }
     const relativePath = requestPath;
     let filePath = normalize(join(root, relativePath));
-    if (existsSync(filePath) && statSync(filePath).isDirectory()) filePath = join(filePath, 'index.html');
+    if (existsSync(filePath) && statSync(filePath).isDirectory()) {
+      if (!requestPath.endsWith('/')) {
+        response.writeHead(301, { Location: `${requestPath}/${new URL(request.url ?? '/', 'http://localhost').search}` });
+        response.end();
+        return;
+      }
+      filePath = join(filePath, 'index.html');
+    }
     const safeRelativePath = relative(root, filePath);
     const resolvedPath = existsSync(filePath) ? realpathSync(filePath) : filePath;
     const resolvedRelativePath = relative(realRoot, resolvedPath);
@@ -50,7 +57,7 @@ const server = createServer((request, response) => {
     response.writeHead(200, {
       'Content-Type': mimeTypes[extname(filePath).toLowerCase()] ?? 'application/octet-stream',
       'Cache-Control': 'no-store',
-      'Content-Security-Policy': "default-src 'self' https://esm.sh; script-src 'self' https://esm.sh 'sha256-KSSvH9mpCiGu09SHLPfGsjbpP5YZ8ZJDSIt3PFMmHQ0='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; object-src 'none'; base-uri 'none'",
+      'Content-Security-Policy': "default-src 'self' https://esm.sh; script-src 'self' https://esm.sh 'sha256-pDt//6nIR9Wu5JdrSJkeF62uMB+Eli1IOfv5dmLgbUw='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; object-src 'none'; base-uri 'none'",
       'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'no-referrer'
     });

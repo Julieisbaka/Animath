@@ -6,7 +6,7 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 
 type CachedNode = { node: Element; signature: string };
 
-export class SvgRenderer implements Renderer {
+export class SvgRenderer implements Renderer<SVGSVGElement> {
   readonly element: SVGSVGElement;
   private group: SVGGElement;
   private readonly cache = new Map<Mobject, CachedNode>();
