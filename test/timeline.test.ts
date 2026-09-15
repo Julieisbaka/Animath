@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Timeline, Tween } from '../src';
+import { Sequence, Timeline, Tween } from '../src';
 
 describe('Timeline', () => {
   it('seeks across sequential tweens', () => {
@@ -22,5 +22,27 @@ describe('Timeline', () => {
     timeline.play().tick(1).tick(1);
     expect(progress).toBe(1);
     expect(timeline.status).toBe('finished');
+  });
+
+  it('rejects non-finite seek and tick values without corrupting state', () => {
+    const timeline = new Timeline().add(new Tween({ duration: 2 }));
+
+    expect(() => timeline.seek(Number.NaN)).toThrow(RangeError);
+    expect(() => timeline.seek(Number.POSITIVE_INFINITY)).toThrow(RangeError);
+    timeline.play();
+    expect(() => timeline.tick(Number.NaN)).toThrow(RangeError);
+    expect(() => timeline.tick(Number.POSITIVE_INFINITY)).toThrow(RangeError);
+    expect(timeline.currentTime).toBe(0);
+  });
+
+  it('does not update sequence tracks before their start time', () => {
+    const updates: string[] = [];
+    const sequence = new Sequence([
+      new Tween({ duration: 1, onUpdate: () => updates.push('first') }),
+      new Tween({ duration: 1, onUpdate: () => updates.push('second') })
+    ]);
+
+    sequence.update(0.25);
+    expect(updates).toEqual(['first']);
   });
 });
