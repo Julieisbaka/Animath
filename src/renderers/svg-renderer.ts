@@ -29,6 +29,8 @@ export class SvgRenderer implements Renderer<SVGSVGElement> {
   renderMobject(mobject: Mobject): void {
     this.frameNodes.add(mobject);
     this.syncMobject(mobject);
+    const entry = this.cache.get(mobject);
+    if (entry) this.group.appendChild(entry.node);
     for (const child of mobject.children) this.renderMobject(child);
   }
 
@@ -47,6 +49,12 @@ export class SvgRenderer implements Renderer<SVGSVGElement> {
     const entry = this.cache.get(mobject);
     entry?.node.remove();
     this.cache.delete(mobject);
+  }
+
+  dispose(): void {
+    this.group.remove();
+    this.cache.clear();
+    this.frameNodes.clear();
   }
 
   private syncMobject(mobject: Mobject): void {
@@ -101,7 +109,11 @@ export class SvgRenderer implements Renderer<SVGSVGElement> {
   }
 
   private updateNode(node: Element, mobject: Mobject): void {
-    if (mobject instanceof Polyline) {
+    if (mobject instanceof Tex) {
+      this.applyTransform(node, mobject);
+      node.setAttribute('fill', mobject.style.fill ?? 'currentColor');
+      node.setAttribute('font-size', `${mobject.fontSize}px`);
+    } else if (mobject instanceof Polyline) {
       const matrix = mobject.worldMatrix;
       node.setAttribute('points', mobject.points.map((point) => {
         const transformed = matrix.transformPoint(point);
@@ -113,10 +125,10 @@ export class SvgRenderer implements Renderer<SVGSVGElement> {
       node.setAttribute('cy', '0');
       node.setAttribute('r', String(mobject.radius));
     }
-    if (mobject.style.fill) node.setAttribute('fill', mobject.style.fill);
-    if (mobject.style.stroke) node.setAttribute('stroke', mobject.style.stroke);
-    if (mobject.style.strokeWidth !== undefined) node.setAttribute('stroke-width', String(mobject.style.strokeWidth));
-    this.applyOpacity(node, mobject);
+    this.setOrRemoveAttribute(node, 'fill', mobject.style.fill);
+    this.setOrRemoveAttribute(node, 'stroke', mobject.style.stroke);
+    this.setOrRemoveAttribute(node, 'stroke-width', mobject.style.strokeWidth === undefined ? undefined : String(mobject.style.strokeWidth));
+    this.setOrRemoveAttribute(node, 'opacity', mobject.style.opacity === undefined ? undefined : String(mobject.style.opacity));
   }
 
   private applyTransform(node: Element, mobject: Mobject): void {
@@ -126,6 +138,11 @@ export class SvgRenderer implements Renderer<SVGSVGElement> {
 
   private applyOpacity(node: Element, mobject: Mobject): void {
     if (mobject.style.opacity !== undefined) node.setAttribute('opacity', String(mobject.style.opacity));
+  }
+
+  private setOrRemoveAttribute(node: Element, name: string, value: string | undefined): void {
+    if (value === undefined) node.removeAttribute(name);
+    else node.setAttribute(name, value);
   }
 
   private signatureOf(mobject: Mobject): string {

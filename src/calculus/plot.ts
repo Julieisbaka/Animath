@@ -75,8 +75,14 @@ export class MobjectGroup extends Mobject {
 export function vectorField(axes: Axes2D, field: (x: number, y: number) => Vector2, spacing = 1, options: PlotOptions = {}): Mobject {
   if (!Number.isFinite(spacing) || spacing <= 0) throw new RangeError('spacing must be positive');
   const group = new MobjectGroup();
-  for (let x = Math.ceil(axes.xRange[0] / spacing) * spacing; x <= axes.xRange[1]; x += spacing) {
-    for (let y = Math.ceil(axes.yRange[0] / spacing) * spacing; y <= axes.yRange[1]; y += spacing) {
+  const xStart = Math.ceil(axes.xRange[0] / spacing) * spacing;
+  const yStart = Math.ceil(axes.yRange[0] / spacing) * spacing;
+  const xCount = Math.floor((axes.xRange[1] - xStart) / spacing) + 1;
+  const yCount = Math.floor((axes.yRange[1] - yStart) / spacing) + 1;
+  for (let xIndex = 0; xIndex < xCount; xIndex++) {
+    const x = xStart + xIndex * spacing;
+    for (let yIndex = 0; yIndex < yCount; yIndex++) {
+      const y = yStart + yIndex * spacing;
       const start = axes.coordsToPoint(x, y);
       const vector = field(x, y);
       const end = axes.coordsToPoint(x + vector.x, y + vector.y);

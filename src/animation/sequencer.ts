@@ -9,7 +9,8 @@ export class Sequence implements Animation {
   update(time: number): boolean {
     let offset = 0;
     for (const animation of this.animations) {
-      animation.update(time - offset);
+      const localTime = time - offset;
+      if (localTime >= 0) animation.update(localTime);
       offset += animation.duration;
     }
     return time >= this.duration;

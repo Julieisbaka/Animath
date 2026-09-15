@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, createElement, type CSSProperties, type ReactNode, type ChangeEvent, type Dispatch, type ReactElement, type SetStateAction } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState, createElement, type CSSProperties, type ReactNode, type ChangeEvent, type Dispatch, type ReactElement, type SetStateAction } from 'react';
 import { Canvas2DRenderer } from '../renderers/canvas-renderer';
 import { SvgRenderer } from '../renderers/svg-renderer';
 import { Mobject } from '../scene/mobject';
@@ -83,48 +83,82 @@ export interface AnimathCanvasProps {
   renderer?: 'svg' | 'canvas';
   animate?: boolean;
   ariaLabel?: string;
+  description?: string;
   className?: string;
   style?: CSSProperties;
 }
 
-export function AnimathCanvas({ scene, timeline, width = 800, height = 480, renderer = 'svg', animate = true, ariaLabel, className, style }: AnimathCanvasProps): ReactElement {
+export function AnimathCanvas({ scene, timeline, width = 800, height = 480, renderer = 'svg', animate = true, ariaLabel, description, className, style }: AnimathCanvasProps): ReactElement {
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const descriptionId = useId();
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setPrefersReducedMotion(query.matches);
+    update();
+    query.addEventListener?.('change', update);
+    return () => query.removeEventListener?.('change', update);
+  }, []);
+
+  const shouldAnimate = animate && !prefersReducedMotion;
   useEffect(() => {
     const activeRenderer = renderer === 'canvas'
       ? new Canvas2DRenderer(canvasRef.current ?? undefined)
       : new SvgRenderer(svgRef.current ?? undefined);
     activeRenderer.resize(width, height);
-    let frame = 0;
+    let frame: number | null = null;
     let previous = performance.now();
     let lastTime = timeline?.currentTime ?? 0;
     let dirty = true;
+    const renderScene = () => {
+      if (!dirty) return;
+      activeRenderer.beginFrame();
+      activeRenderer.renderMobject(scene);
+      activeRenderer.endFrame();
+      dirty = false;
+    };
     const render = (now: number) => {
+      frame = null;
       if (timeline) {
-        if (animate && timeline.status === 'playing') timeline.tick((now - previous) / 1000);
+        if (shouldAnimate && timeline.status === 'playing') timeline.tick((now - previous) / 1000);
         previous = now;
         if (timeline.currentTime !== lastTime) {
           lastTime = timeline.currentTime;
           dirty = true;
         }
       }
-      if (dirty) {
-        activeRenderer.beginFrame();
-        activeRenderer.renderMobject(scene);
-        activeRenderer.endFrame();
-        dirty = false;
-      }
-      frame = requestAnimationFrame(render);
+      renderScene();
+      if (timeline && shouldAnimate && timeline.status === 'playing') frame = requestAnimationFrame(render);
     };
-    frame = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(frame);
-  }, [animate, height, renderer, scene, timeline, width]);
+    const unsubscribe = timeline?.subscribe(() => {
+      dirty = true;
+      renderScene();
+      if (shouldAnimate && timeline.status === 'playing' && frame === null) {
+        previous = performance.now();
+        frame = requestAnimationFrame(render);
+      }
+    });
+    renderScene();
+    if (timeline && shouldAnimate && timeline.status === 'playing') frame = requestAnimationFrame(render);
+    return () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      unsubscribe?.();
+      activeRenderer.dispose();
+    };
+  }, [height, renderer, scene, shouldAnimate, timeline, width]);
 
-  const accessibilityProps = ariaLabel ? { role: 'img', 'aria-label': ariaLabel } : {};
+  const accessibilityProps = {
+    role: 'img',
+    ...(ariaLabel ? { 'aria-label': ariaLabel } : {}),
+    ...(description ? { 'aria-describedby': descriptionId } : {})
+  };
   const commonProps = { ...accessibilityProps, className, style, width, height };
   return renderer === 'canvas'
-    ? createElement('canvas', { ...commonProps, ref: canvasRef })
-    : createElement('svg', { ...commonProps, ref: svgRef, viewBox: `0 0 ${width} ${height}` });
+    ? createElement('canvas', { ...commonProps, ref: canvasRef }, description ? createElement('span', { id: descriptionId }, description) : undefined)
+    : createElement('svg', { ...commonProps, ref: svgRef, viewBox: `0 0 ${width} ${height}` }, description ? createElement('desc', { id: descriptionId }, description) : undefined);
 }
 
 export interface AnimathPlayerProps extends AnimathCanvasProps {

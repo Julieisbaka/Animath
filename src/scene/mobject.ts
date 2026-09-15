@@ -37,11 +37,31 @@ export abstract class Mobject {
     }
     return this;
   }
-  moveTo(position: Vector2): this { this.position = position; return this; }
-  shift(offset: Vector2): this { this.position = this.position.add(offset); return this; }
-  rotate(radians: number): this { this.rotation += radians; return this; }
-  setScale(scale: Vector2): this { this.scale = scale; return this; }
-  setStyle(style: Style): this { this.style = { ...this.style, ...style }; return this; }
+  moveTo(position: Vector2): this {
+    assertFiniteVector(position, 'position');
+    this.position = position;
+    return this;
+  }
+  shift(offset: Vector2): this {
+    assertFiniteVector(offset, 'offset');
+    return this.moveTo(this.position.add(offset));
+  }
+  rotate(radians: number): this {
+    if (!Number.isFinite(radians)) throw new RangeError('rotation must be finite');
+    this.rotation += radians;
+    return this;
+  }
+  setScale(scale: Vector2): this {
+    assertFiniteVector(scale, 'scale');
+    this.scale = scale;
+    return this;
+  }
+  setStyle(style: Style): this {
+    if (style.strokeWidth !== undefined && (!Number.isFinite(style.strokeWidth) || style.strokeWidth < 0)) throw new RangeError('strokeWidth must be finite and non-negative');
+    if (style.opacity !== undefined && (!Number.isFinite(style.opacity) || style.opacity < 0 || style.opacity > 1)) throw new RangeError('opacity must be finite and between 0 and 1');
+    this.style = { ...this.style, ...style };
+    return this;
+  }
   get localMatrix(): Matrix3 {
     return Matrix3.translation(this.position).multiply(Matrix3.rotation(this.rotation)).multiply(Matrix3.scaling(this.scale));
   }
@@ -50,7 +70,10 @@ export abstract class Mobject {
 }
 
 export class Circle extends Mobject {
-  constructor(public radius = 1) { super(); }
+  constructor(public radius = 1) {
+    super();
+    if (!Number.isFinite(radius) || radius < 0) throw new RangeError('Circle radius must be finite and non-negative');
+  }
   getBounds() {
     return {
       min: this.position.sub(new Vector2(this.radius, this.radius)),
@@ -60,9 +83,16 @@ export class Circle extends Mobject {
 }
 
 export class Polyline extends Mobject {
-  constructor(public points: Vector2[] = [], public closed = false) { super(); }
+  constructor(public points: Vector2[] = [], public closed = false) {
+    super();
+    assertFinitePoints(points);
+  }
 
-  setPoints(points: Vector2[]): this { this.points = points; return this; }
+  setPoints(points: Vector2[]): this {
+    assertFinitePoints(points);
+    this.points = points;
+    return this;
+  }
 
   getBounds() {
     if (this.points.length === 0) return { min: Vector2.zero, max: Vector2.zero };
@@ -78,4 +108,12 @@ export class Polyline extends Mobject {
     }
     return { min: new Vector2(minX, minY), max: new Vector2(maxX, maxY) };
   }
+}
+
+function assertFiniteVector(value: Vector2, name: string): void {
+  if (!Number.isFinite(value.x) || !Number.isFinite(value.y)) throw new RangeError(`${name} coordinates must be finite`);
+}
+
+function assertFinitePoints(points: readonly Vector2[]): void {
+  for (const point of points) assertFiniteVector(point, 'point');
 }

@@ -48,10 +48,16 @@ export class Axes2D extends Mobject {
     const lines: Polyline[] = [];
     const xStep = this.gridStep(this.xRange);
     const yStep = this.gridStep(this.yRange);
-    for (let x = Math.ceil(this.xRange[0] / xStep) * xStep; x <= this.xRange[1]; x += xStep) {
+    const xStart = Math.ceil(this.xRange[0] / xStep) * xStep;
+    const xCount = Math.floor((this.xRange[1] - xStart) / xStep) + 1;
+    for (let index = 0; index < xCount; index++) {
+      const x = xStart + index * xStep;
       lines.push(new Polyline([this.coordsToPoint(x, this.yRange[0]), this.coordsToPoint(x, this.yRange[1])]).setStyle({ stroke: color, strokeWidth: 1 }));
     }
-    for (let y = Math.ceil(this.yRange[0] / yStep) * yStep; y <= this.yRange[1]; y += yStep) {
+    const yStart = Math.ceil(this.yRange[0] / yStep) * yStep;
+    const yCount = Math.floor((this.yRange[1] - yStart) / yStep) + 1;
+    for (let index = 0; index < yCount; index++) {
+      const y = yStart + index * yStep;
       lines.push(new Polyline([this.coordsToPoint(this.xRange[0], y), this.coordsToPoint(this.xRange[1], y)]).setStyle({ stroke: color, strokeWidth: 1 }));
     }
     return lines;

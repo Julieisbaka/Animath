@@ -6,4 +6,5 @@ export interface Renderer<TElement extends Element = Element> {
   beginFrame(): void;
   renderMobject(mobject: Mobject): void;
   endFrame(): void;
+  dispose(): void;
 }

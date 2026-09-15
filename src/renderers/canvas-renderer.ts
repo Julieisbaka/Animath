@@ -1,9 +1,11 @@
 import { Circle, Mobject, Polyline } from '../scene/mobject';
+import { Tex } from '../latex/tex';
 import { Renderer } from './renderer';
 
 export class Canvas2DRenderer implements Renderer<HTMLCanvasElement> {
   readonly element: HTMLCanvasElement;
   private readonly context: CanvasRenderingContext2D;
+  private pixelRatio = 1;
 
   constructor(canvas?: HTMLCanvasElement) {
     this.element = canvas ?? document.createElement('canvas');
@@ -13,17 +15,35 @@ export class Canvas2DRenderer implements Renderer<HTMLCanvasElement> {
   }
 
   resize(width: number, height: number): void {
-    this.element.width = width;
-    this.element.height = height;
+    this.pixelRatio = typeof globalThis.devicePixelRatio === 'number' && Number.isFinite(globalThis.devicePixelRatio)
+      ? Math.max(1, globalThis.devicePixelRatio)
+      : 1;
+    this.element.width = Math.round(width * this.pixelRatio);
+    this.element.height = Math.round(height * this.pixelRatio);
+    this.element.style.width = `${width}px`;
+    this.element.style.height = `${height}px`;
+    this.context.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
   }
 
-  beginFrame(): void { this.context.clearRect(0, 0, this.element.width, this.element.height); }
+  beginFrame(): void {
+    this.context.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+    this.context.clearRect(0, 0, this.element.width / this.pixelRatio, this.element.height / this.pixelRatio);
+  }
 
   renderMobject(mobject: Mobject): void {
-    if (mobject instanceof Polyline) {
+    if (mobject instanceof Tex) {
+      const [a, b, c, d, e, f] = mobject.worldMatrix.values;
+      this.context.save();
+      this.context.setTransform(this.pixelRatio * (a ?? 1), this.pixelRatio * (d ?? 0), this.pixelRatio * (b ?? 0), this.pixelRatio * (e ?? 1), this.pixelRatio * (c ?? 0), this.pixelRatio * (f ?? 0));
+      this.context.globalAlpha = mobject.style.opacity ?? 1;
+      this.context.fillStyle = mobject.style.fill && mobject.style.fill !== 'currentColor' ? mobject.style.fill : '#000';
+      this.context.font = `${mobject.fontSize}px sans-serif`;
+      this.context.fillText(mobject.expression, 0, 0);
+      this.context.restore();
+    } else if (mobject instanceof Polyline) {
       this.context.save();
       const [a, b, c, d, e, f] = mobject.worldMatrix.values;
-      this.context.setTransform(a ?? 1, d ?? 0, b ?? 0, e ?? 1, c ?? 0, f ?? 0);
+      this.context.setTransform(this.pixelRatio * (a ?? 1), this.pixelRatio * (d ?? 0), this.pixelRatio * (b ?? 0), this.pixelRatio * (e ?? 1), this.pixelRatio * (c ?? 0), this.pixelRatio * (f ?? 0));
       this.context.globalAlpha = mobject.style.opacity ?? 1;
       this.context.beginPath();
       mobject.points.forEach((point, index) => index === 0 ? this.context.moveTo(point.x, point.y) : this.context.lineTo(point.x, point.y));
@@ -41,7 +61,7 @@ export class Canvas2DRenderer implements Renderer<HTMLCanvasElement> {
     } else if (mobject instanceof Circle) {
       const [a, b, c, d, e, f] = mobject.worldMatrix.values;
       this.context.save();
-      this.context.setTransform(a ?? 1, d ?? 0, b ?? 0, e ?? 1, c ?? 0, f ?? 0);
+      this.context.setTransform(this.pixelRatio * (a ?? 1), this.pixelRatio * (d ?? 0), this.pixelRatio * (b ?? 0), this.pixelRatio * (e ?? 1), this.pixelRatio * (c ?? 0), this.pixelRatio * (f ?? 0));
       this.context.globalAlpha = mobject.style.opacity ?? 1;
       this.context.beginPath();
       this.context.arc(0, 0, mobject.radius, 0, Math.PI * 2);
@@ -60,4 +80,6 @@ export class Canvas2DRenderer implements Renderer<HTMLCanvasElement> {
   }
 
   endFrame(): void {}
+
+  dispose(): void {}
 }
