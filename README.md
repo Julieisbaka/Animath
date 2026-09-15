@@ -73,10 +73,10 @@ The demo server serves the documentation at `http://localhost:4173/docs/` and th
 ## Documentation
 
 - `/docs/` — product overview and links
-- `/docs/getting-started.html` — installation and first scene
+- `/docs/getting-started.md` — installation and first scene
 - `/docs/calculus.html` — interactive plotting playground
-- `/docs/react.html` — React adapter guide
-- `/docs/api.html` — typed API reference
+- `/docs/react.md` — React adapter guide
+- `/docs/api.md` — typed API reference
 
 ## Compatibility and security
 

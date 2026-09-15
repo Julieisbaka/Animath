@@ -75,10 +75,12 @@ export class Circle extends Mobject {
     if (!Number.isFinite(radius) || radius < 0) throw new RangeError('Circle radius must be finite and non-negative');
   }
   getBounds() {
-    return {
-      min: this.position.sub(new Vector2(this.radius, this.radius)),
-      max: this.position.add(new Vector2(this.radius, this.radius))
-    };
+    return boundsOfPoints([
+      this.worldMatrix.transformPoint(new Vector2(-this.radius, -this.radius)),
+      this.worldMatrix.transformPoint(new Vector2(this.radius, -this.radius)),
+      this.worldMatrix.transformPoint(new Vector2(this.radius, this.radius)),
+      this.worldMatrix.transformPoint(new Vector2(-this.radius, this.radius))
+    ]);
   }
 }
 
@@ -96,17 +98,7 @@ export class Polyline extends Mobject {
 
   getBounds() {
     if (this.points.length === 0) return { min: Vector2.zero, max: Vector2.zero };
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-    for (const point of this.points) {
-      if (point.x < minX) minX = point.x;
-      if (point.y < minY) minY = point.y;
-      if (point.x > maxX) maxX = point.x;
-      if (point.y > maxY) maxY = point.y;
-    }
-    return { min: new Vector2(minX, minY), max: new Vector2(maxX, maxY) };
+    return boundsOfPoints(this.points.map((point) => this.worldMatrix.transformPoint(point)));
   }
 }
 
@@ -116,4 +108,18 @@ function assertFiniteVector(value: Vector2, name: string): void {
 
 function assertFinitePoints(points: readonly Vector2[]): void {
   for (const point of points) assertFiniteVector(point, 'point');
+}
+
+function boundsOfPoints(points: readonly Vector2[]): { min: Vector2; max: Vector2 } {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const point of points) {
+    minX = Math.min(minX, point.x);
+    minY = Math.min(minY, point.y);
+    maxX = Math.max(maxX, point.x);
+    maxY = Math.max(maxY, point.y);
+  }
+  return { min: new Vector2(minX, minY), max: new Vector2(maxX, maxY) };
 }

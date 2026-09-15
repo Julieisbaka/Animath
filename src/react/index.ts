@@ -21,6 +21,7 @@ export function useTimeline(timeline: Timeline, options: UseTimelineOptions = {}
   const [, setVersion] = useState(0);
   const frameRef = useRef<number | null>(null);
   const previousRef = useRef<number | null>(null);
+  const schedulerOwnerRef = useRef<object>({});
 
   const tickFrame = useCallback((now: number) => {
     frameRef.current = null;
@@ -36,6 +37,7 @@ export function useTimeline(timeline: Timeline, options: UseTimelineOptions = {}
 
   const startLoop = useCallback(() => {
     if (frameRef.current !== null || timeline.status !== 'playing') return;
+    if (!timeline.acquireScheduler(schedulerOwnerRef.current)) return;
     previousRef.current = performance.now();
     frameRef.current = requestAnimationFrame(tickFrame);
   }, [tickFrame, timeline]);
@@ -46,8 +48,26 @@ export function useTimeline(timeline: Timeline, options: UseTimelineOptions = {}
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       frameRef.current = null;
+      timeline.releaseScheduler(schedulerOwnerRef.current);
     };
   }, [options.autoPlay, startLoop, timeline]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    let resumeOnVisible = false;
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        resumeOnVisible = timeline.status === 'playing';
+        if (resumeOnVisible) timeline.pause();
+      } else if (resumeOnVisible) {
+        resumeOnVisible = false;
+        timeline.play();
+        startLoop();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [startLoop, timeline]);
 
   const play = useCallback(() => {
     timeline.play();
@@ -92,6 +112,7 @@ export function AnimathCanvas({ scene, timeline, width = 800, height = 480, rend
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const descriptionId = useId();
+  const schedulerOwnerRef = useRef<object>({});
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -110,6 +131,7 @@ export function AnimathCanvas({ scene, timeline, width = 800, height = 480, rend
       : new SvgRenderer(svgRef.current ?? undefined);
     activeRenderer.resize(width, height);
     let frame: number | null = null;
+    let ownsScheduler = false;
     let previous = performance.now();
     let lastTime = timeline?.currentTime ?? 0;
     let dirty = true;
@@ -123,7 +145,7 @@ export function AnimathCanvas({ scene, timeline, width = 800, height = 480, rend
     const render = (now: number) => {
       frame = null;
       if (timeline) {
-        if (shouldAnimate && timeline.status === 'playing') timeline.tick((now - previous) / 1000);
+        if (ownsScheduler && shouldAnimate && timeline.status === 'playing') timeline.tick((now - previous) / 1000);
         previous = now;
         if (timeline.currentTime !== lastTime) {
           lastTime = timeline.currentTime;
@@ -131,21 +153,26 @@ export function AnimathCanvas({ scene, timeline, width = 800, height = 480, rend
         }
       }
       renderScene();
-      if (timeline && shouldAnimate && timeline.status === 'playing') frame = requestAnimationFrame(render);
+      if (timeline && ownsScheduler && shouldAnimate && timeline.status === 'playing') frame = requestAnimationFrame(render);
     };
     const unsubscribe = timeline?.subscribe(() => {
       dirty = true;
       renderScene();
       if (shouldAnimate && timeline.status === 'playing' && frame === null) {
+        ownsScheduler = timeline.acquireScheduler(schedulerOwnerRef.current);
         previous = performance.now();
-        frame = requestAnimationFrame(render);
+        if (ownsScheduler) frame = requestAnimationFrame(render);
       }
     });
     renderScene();
-    if (timeline && shouldAnimate && timeline.status === 'playing') frame = requestAnimationFrame(render);
+    if (timeline && shouldAnimate && timeline.status === 'playing') {
+      ownsScheduler = timeline.acquireScheduler(schedulerOwnerRef.current);
+      if (ownsScheduler) frame = requestAnimationFrame(render);
+    }
     return () => {
       if (frame !== null) cancelAnimationFrame(frame);
       unsubscribe?.();
+      timeline?.releaseScheduler(schedulerOwnerRef.current);
       activeRenderer.dispose();
     };
   }, [height, renderer, scene, shouldAnimate, timeline, width]);

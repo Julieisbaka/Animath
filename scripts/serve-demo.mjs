@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
+  '.md': 'text/markdown; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
   '.mjs': 'application/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -21,6 +22,11 @@ const realRoot = realpathSync(root);
 
 const server = createServer((request, response) => {
   try {
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      response.writeHead(405, { Allow: 'GET, HEAD', 'Content-Type': 'text/plain; charset=utf-8' });
+      response.end('Method not allowed');
+      return;
+    }
     let requestPath;
     try {
       requestPath = decodeURIComponent(new URL(request.url ?? '/', 'http://localhost').pathname);
@@ -42,7 +48,8 @@ const server = createServer((request, response) => {
         response.end();
         return;
       }
-      filePath = join(filePath, 'index.html');
+      const markdownIndex = join(filePath, 'index.md');
+      filePath = existsSync(markdownIndex) ? markdownIndex : join(filePath, 'index.html');
     }
     const safeRelativePath = relative(root, filePath);
     const resolvedPath = existsSync(filePath) ? realpathSync(filePath) : filePath;
@@ -61,7 +68,14 @@ const server = createServer((request, response) => {
       'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'no-referrer'
     });
-    createReadStream(filePath).pipe(response);
+    if (request.method === 'HEAD') {
+      response.end();
+      return;
+    }
+    createReadStream(filePath).on('error', () => {
+      if (!response.headersSent) response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+      response.end('Unable to read file');
+    }).pipe(response);
   } catch {
     response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
     response.end('Internal server error');

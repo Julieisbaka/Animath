@@ -69,7 +69,21 @@ export function riemannRectangles(axes: Axes2D, fn: (x: number) => number, range
 }
 
 export class MobjectGroup extends Mobject {
-  getBounds() { return { min: Vector2.zero, max: Vector2.zero }; }
+  getBounds() {
+    if (this.children.length === 0) return { min: Vector2.zero, max: Vector2.zero };
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const child of this.children) {
+      const bounds = child.getBounds();
+      minX = Math.min(minX, bounds.min.x);
+      minY = Math.min(minY, bounds.min.y);
+      maxX = Math.max(maxX, bounds.max.x);
+      maxY = Math.max(maxY, bounds.max.y);
+    }
+    return { min: new Vector2(minX, minY), max: new Vector2(maxX, maxY) };
+  }
 }
 
 export function vectorField(axes: Axes2D, field: (x: number, y: number) => Vector2, spacing = 1, options: PlotOptions = {}): Mobject {

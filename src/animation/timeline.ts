@@ -8,6 +8,7 @@ export class Timeline {
   private state: TimelineState = 'idle';
   private readonly animations: Animation[] = [];
   private readonly listeners = new Set<() => void>();
+  private schedulerOwner?: object;
 
   add(animation: Animation): this { this.animations.push(animation); return this; }
   get duration(): number { return this.animations.reduce((total, animation) => total + animation.duration, 0); }
@@ -17,6 +18,16 @@ export class Timeline {
   subscribe(listener: () => void): () => void {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
+  }
+
+  acquireScheduler(owner: object): boolean {
+    if (this.schedulerOwner && this.schedulerOwner !== owner) return false;
+    this.schedulerOwner = owner;
+    return true;
+  }
+
+  releaseScheduler(owner: object): void {
+    if (this.schedulerOwner === owner) this.schedulerOwner = undefined;
   }
 
   play(): this {
