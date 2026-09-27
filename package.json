@@ -60,6 +60,6 @@
     "vitest": "^5.0.0"
   },
   "dependencies": {
-    "katex": "^0.18.7"
+    "katex": "^0.18.9"
   }
 }
