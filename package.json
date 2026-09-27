@@ -49,7 +49,7 @@
     "esbuild": "^0.28.2"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2",
+    "@types/node": "^26.6.2",
     "@types/react": "^19.3.0",
     "esbuild": "^0.28.2",
     "happy-dom": "^20.14.5",
